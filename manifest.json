@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "Context Collector",
+  "version": "1.0",
+  "permissions": ["activeTab", "downloads", "scripting", "clipboardWrite"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "128": "./icons/128.png"
+    },
+    "default_title": "Context Collector"
+  },
+  "icons": {
+    "128": "./icons/128.png",
+    "48": "./icons/48.png",
+    "16": "./icons/16.png"
+  }
+}
