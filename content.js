@@ -13,7 +13,7 @@ if (window.location.href.startsWith('chrome://') || window.location.href.startsW
     toast.style.bottom = '20px';
     toast.style.left = '50%';
     toast.style.transform = 'translateX(-50%)';
-    toast.style.backgroundColor = 'rgba(13, 119, 151, 0.9)';
+    toast.style.backgroundColor = 'rgba(13, 119, 151)';
     toast.style.color = 'white';
     toast.style.padding = '15px 30px';
     toast.style.borderRadius = '5px';
@@ -204,35 +204,16 @@ if (window.location.href.startsWith('chrome://') || window.location.href.startsW
     element.style.outline = '2px solid red';
     setTimeout(() => element.style.outline = '', 500);
 
-    // Generate Markdown
     const markdown = scrapeToMarkdown(element);
 
-    // Cleanup event listeners
     deactivateExtension();
 
-    // Create a Blob and generate a URL
-    const blob = new Blob([markdown], { type: 'text/markdown' });
-    const url = URL.createObjectURL(blob);
-
-    // Get the tab title
-    chrome.runtime.sendMessage({ action: 'getTabTitle' }, (response) => {
-      const tabTitle = response.tabTitle || 'content'; // Fallback to 'content' if title is unavailable
-      const sanitizedTitle = sanitizeFilename(tabTitle); // Sanitize the title
-      const filename = `${sanitizedTitle}.md`; // Add .md extension
-
-      // Send the URL and filename to the background script
-      // chrome.runtime.sendMessage({
-      //   action: 'downloadMarkdown',
-      //   url: url,
-      //   filename: filename
-      // });
-
-      navigator.clipboard.writeText(markdown).then(() => {
-        showToast('Content copied to clipboard');
-      }).catch((err) => {
-        console.error('Failed to copy content: ', err);
-      });
+    navigator.clipboard.writeText(markdown).then(() => {
+      showToast('Content copied to clipboard');
+    }).catch((err) => {
+      console.error('Failed to copy content: ', err);
     });
+    
   }
 
   function handleElementHover(event) {
