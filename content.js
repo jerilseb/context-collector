@@ -83,7 +83,7 @@ if (window.location.href.startsWith('chrome://') || window.location.href.startsW
         case 'h6':
           return `###### ${children}\n\n`;
         case 'p':
-          return `${children}\n\n`;
+          return `\n${children}\n\n`;
         case 'b':
         case 'strong':
           return `**${children}**`;
@@ -91,9 +91,9 @@ if (window.location.href.startsWith('chrome://') || window.location.href.startsW
         case 'em':
           return `*${children}*`;
         case 'a':
-          return `[${children}](${node.href})`;
+          return `${children}`;
         case 'img':
-          return `![${node.alt || 'image'}](${node.src})`;
+          return `\n`;
         case 'ul':
           return `${children}`;
         case 'ol':

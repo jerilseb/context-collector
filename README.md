@@ -1,114 +1,64 @@
-# Webtext Chrome Extension
+# Context Collector
 
-This Chrome extension allows users to select any DOM element on a webpage and scrape its text content, images, and video links into a Markdown file into an LLM friendly format. The downloaded file is named after the title of the current tab.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) <!-- Optional: Add a license badge -->
 
-## Features
-- **Select DOM Elements**: Click on any element to select it.
-- **Visual Feedback**: Hover over elements to see a red outline; click to confirm selection.
-- **Markdown Export**: Scrape text, images, and video links into a Markdown file.
-- **Tab Title as Filename**: The downloaded file is named after the current tab's title.
-- **Custom Alerts**: Notifies users when the extension cannot run on restricted pages (e.g., `chrome://` or `edge://`).
+**Effortlessly copy specific content blocks from web pages directly to your clipboard as clean Markdown.**
 
----
+<!-- Optional: Add a GIF/Screenshot here demonstrating the selection process -->
+<!-- ![Context Collector Demo](link_to_your_gif_or_screenshot.gif) -->
 
-## Installation
+Tired of messy copy-pasting from websites, especially when you only need a specific section like an article, a code block, or a list? Context Collector simplifies this process dramatically.
 
-### Step 1: Download the Extension
-1. Clone or download this repository to your local machine.
-2. Extract the files (if downloaded as a ZIP).
+## What it Does
 
-### Step 2: Load the Extension in Chrome/Edge
-1. Open your browser and navigate to:
-   - **Chrome**: `chrome://extensions/`
-   - **Edge**: `edge://extensions/`
-2. Enable **Developer Mode** (toggle in the top-right corner).
-3. Click **Load unpacked**.
-4. Select the folder where the extension files are located.
+This browser extension allows you to:
 
-### Step 3: Pin the Extension
-1. Once loaded, click the **Extensions** icon in the toolbar.
-2. Pin the **DOM Scraper to Markdown** extension for easy access.
+1.  **Visually Select:** Activate the extension, and simply hover over the webpage. Different content blocks (like paragraphs, divs, articles) will be highlighted.
+2.  **One-Click Copy:** Click on the highlighted block you want.
+3.  **Get Markdown:** The content of that block is automatically converted into Markdown format and copied to your clipboard.
+4.  **Paste Anywhere:** Paste the clean Markdown into your notes, documentation, CMS, or anywhere else you need it.
 
----
+## Key Features
 
-## Usage
+*   **Intuitive Selection:** Visually highlights content blocks as you mouse over them.
+*   **Instant Markdown Conversion:** Automatically translates common HTML elements (headings, lists, code, tables, etc.) into Markdown.
+*   **Clipboard Ready:** Copies the result directly to your clipboard with a single click.
+*   **Simple Activation:** Easy to start via the extension popup.
+*   **Cancellation:** Easily cancel the selection mode by pressing the `Esc` key.
 
-### Step 1: Activate the Extension
-1. Navigate to any webpage where you want to scrape content.
-2. Click the **DOM Scraper to Markdown** extension icon in the toolbar.
+## How to Use
 
-### Step 2: Select a DOM Element
-1. Hover over elements on the page to see a red outline.
-2. Click on the element you want to scrape.
+1.  Navigate to the webpage you want to copy from.
+2.  Click the **Context Collector** extension icon in your browser toolbar.
+3.  Click **"Start Selection"**.
+4.  Hover your mouse over the page – sections will get a red outline.
+5.  Click the outlined section you want to copy.
+6.  Done! The Markdown is now on your clipboard. (Press `Esc` anytime before clicking to cancel).
 
-### Step 3: Download the Markdown File
-1. After clicking, the extension will:
-   - Scrape the text, images, and video links from the selected element.
-   - Generate a Markdown file named after the current tab's title.
-   - Automatically download the file to your default downloads folder.
+## Installation (Development/Testing)
 
----
+1.  Download the project files (or clone the repository).
+2.  Open your browser's extensions page (`chrome://extensions` or `edge://extensions`).
+3.  Enable "Developer mode".
+4.  Click "Load unpacked" and select the project folder (the one with `manifest.json`).
+5.  The extension icon will appear in your toolbar.
 
-## Example
+## Why Use It?
 
-### Input: Webpage Content
-```html
-<div>
-  <h1>Welcome to My Website</h1>
-  <p>This is a <strong>sample</strong> paragraph with a <a href="https://example.com">link</a>.</p>
-  <img src="image.png" alt="Sample Image">
-</div>
-```
+*   **Save Time:** Faster than manual copying, pasting, and reformatting.
+*   **Clean Output:** Get structured Markdown instead of messy HTML or plain text with inconsistent styling.
+*   **Focus:** Grab only the specific content block you need, ignoring surrounding clutter.
+*   **Great For:** Note-taking, documentation writing, content curation, developers grabbing code snippets.
 
-### Output: Downloaded Markdown File (`Welcome_to_My_Website.md`)
-```markdown
-# Welcome to My Website
+## Limitations
 
-This is a **sample** paragraph with a [link](https://example.com).
-
-![Sample Image](image.png)
-```
-
----
-
-## Troubleshooting
-
-### 1. Extension Doesn't Work on Certain Pages
-- The extension cannot run on restricted pages like `chrome://` or `edge://`.
-- A custom alert will notify you if the extension is unable to run on the current page.
-
-### 2. Invalid Filename Error
-- If the tab title contains invalid characters, the extension will sanitize the filename automatically.
-- Example: `My Document: A Study?` → `My_Document__A_Study_.md`
-
-### 3. No Content Scraped
-- Ensure you are selecting an element that contains visible content (e.g., text, images, or videos).
-- Avoid selecting empty or non-content elements (e.g., `<div>` with no text).
-
----
-
-## Customization
-
-### Modify the Code
-- Open the `content.js` file to customize:
-  - **Markdown Formatting**: Update the `scrapeToMarkdown` function.
-  - **Ignored Elements**: Modify the `shouldIgnoreElement` function to exclude specific tags, classes, or attributes.
-
-### Add New Features
-- Extend the functionality by adding support for additional HTML elements (e.g., tables, iframes).
-
----
-
-## License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
----
+*   May not work perfectly on highly complex or unusual website layouts.
+*   Cannot run on restricted browser pages (like settings) or the Chrome Web Store.
 
 ## Contributing
-Contributions are welcome! If you find a bug or have a feature request, please open an issue or submit a pull request.
 
----
+Found a bug or have an idea? Contributions are welcome via issues or pull requests!
 
-## Feedback
+## License
 
-If you have any feedback, suggestions, or questions, feel free to reach out to me on [Twitter](https://twitter.com/jit_infinity) or add an issue on [GitHub](https://github.com/prasanjit101/to-md)
+[MIT License](LICENSE) <!-- Make sure to include a LICENSE file if you choose MIT -->
