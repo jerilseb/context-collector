@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Context Collector Options</title>
+    <link rel="stylesheet" href="options.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Context Collector Settings</h1>
+            <p class="subtitle">Configure your extension preferences</p>
+        </header>
+
+        <main>
+            <section class="settings-card">
+                <h2>Keyboard Shortcut</h2>
+                <div class="hotkey-container">
+                    <label for="hotkey">Start Selection Hotkey:</label>
+                    <div class="hotkey-input">
+                        <input type="text" id="hotkey" readonly placeholder="Click to set hotkey">
+                        <button id="clearHotkey" class="secondary-button">Clear</button>
+                    </div>
+                    <p class="help-text">Press any key combination to set the hotkey. The hotkey will be used to start the selection mode.</p>
+                </div>
+            </section>
+
+            <section class="settings-card">
+                <h2>About</h2>
+                <p>Context Collector helps you quickly extract specific sections of a webpage and convert them into Markdown format.</p>
+                <p>Version: <span id="version"></span></p>
+            </section>
+        </main>
+
+        <footer>
+            <div id="status" class="status-message"></div>
+        </footer>
+    </div>
+    <script src="options.js"></script>
+</body>
+</html> 

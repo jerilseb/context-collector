@@ -2,7 +2,15 @@
   "manifest_version": 3,
   "name": "Context Collector",
   "version": "1.0",
-  "permissions": ["activeTab", "downloads", "scripting", "clipboardWrite"],
+  "permissions": [
+    "activeTab",
+    "downloads",
+    "scripting",
+    "clipboardWrite",
+    "storage",
+    "commands",
+    "tabs"
+  ],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
@@ -14,5 +22,21 @@
     "128": "./icons/128.png",
     "48": "./icons/48.png",
     "16": "./icons/16.png"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "commands": {
+    "start-selection": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+X",
+        "mac": "Command+Shift+X"
+      },
+      "description": "Start selection mode"
+    }
   }
 }
