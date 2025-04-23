@@ -135,7 +135,7 @@ if (window.location.href.startsWith('chrome://') || window.location.href.startsW
         case 'table':
           return convertTableToMarkdown(node);
         case 'div':
-          if(node.firstElementChild?.tagName.toLowerCase() === 'div') {
+          if (node.firstElementChild?.tagName.toLowerCase() === 'div') {
             return children;
           }
           return `${children}\n`;
@@ -178,8 +178,11 @@ if (window.location.href.startsWith('chrome://') || window.location.href.startsW
     }
 
     // Convert the entire element to Markdown
-    return convertToMarkdown(element).trim();
+    let content =  convertToMarkdown(element).trim();
+    content = sanitizeFileContent(content);
+    return content;
   }
+
   // Helper function to sanitize filenames
   function sanitizeFilename(title) {
     // Replace invalid characters with underscores
@@ -190,52 +193,54 @@ if (window.location.href.startsWith('chrome://') || window.location.href.startsW
       .substring(0, 100); // Limit filename length
   }
 
-  function handleElementClick(event) {
+  // helper function to sanitize file content
+  function sanitizeFileContent(content) {
+    return content
+      .replace(/^[ \t]+$/gm, '\n')      // Convert lines that contain only whitespace to a single newline
+      .replace(/\n{3,}/g, '\n\n')       // Replace 3 or more newlines with just 2
+      .trim();                          // Remove leading/trailing spaces
+  }
+
+  async function handleElementClick(event) {
     if (!isExtensionActive) return; // Do nothing if the extension is inactive
 
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation();
 
-    // Use event.target directly if closest('*') causes issues, but closest is generally safer
-    const element = event.target.closest('*'); 
-    if (!element) return; // If somehow no element is found
+    const element = event.target.closest('*');
+    if (!element) return;
 
-    // Remove hover outline
     if (hoveredElement) {
       hoveredElement.style.outline = '';
     }
-
-    // Optional: Visual feedback for click (can be removed if distracting)
-    // element.style.outline = '2px solid green'; 
-    // setTimeout(() => element.style.outline = '', 300);
 
     console.log("Element clicked, scraping markdown...");
     const markdown = scrapeToMarkdown(element);
     console.log("Markdown generated length:", markdown.length);
 
-    // Deactivate selection mode (listeners, hover effects) immediately after click
-    deactivateExtension(); 
+    deactivateExtension();
 
     // --- Send the markdown to the background script --- 
     if (markdown) {
-      chrome.runtime.sendMessage({ action: "sendText", text: markdown }, (response) => {
+      try {
+        const response = await chrome.runtime.sendMessage({ action: "sendText", text: markdown });
         console.log("Background script responded:", response);
         showToast('Content added to collection', 1000);
-      });
+      } catch (err) {
+        console.error("Error sending markdown:", err);
+        showToast('Failed to send content.', 1500);
+      }
     } else {
       console.log("No markdown generated from the clicked element.");
-       showToast('No content found in selected element.', 1500);
-       // Send message indicating no text was found from this specific click
-       chrome.runtime.sendMessage({ action: "sendText", text: null }, (response) => {
-         if (chrome.runtime.lastError) {
-           console.error("Error sending empty text message:", chrome.runtime.lastError.message);
-         } else {
-           console.log("Background script responded to empty text message:", response);
-         }
-       });
+      showToast('No content found in selected element.', 1500);
+      try {
+        const response = await chrome.runtime.sendMessage({ action: "sendText", text: null });
+        console.log("Background script responded to empty text message:", response);
+      } catch (err) {
+        console.error("Error sending empty text message:", err);
+      }
     }
-
   }
 
   function handleElementHover(event) {
