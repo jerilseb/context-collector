@@ -1,5 +1,3 @@
-// background.js
-
 // Initialize storage on installation
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.local.get(['isCollecting', 'collectedContent'], (result) => {
