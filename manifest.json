@@ -5,10 +5,8 @@
   "permissions": [
     "activeTab",
     "scripting",
-    "clipboardWrite",
     "storage",
-    "commands",
-    "tabs"
+    "commands"
   ],
   "action": {
     "default_popup": "popup.html",
@@ -30,12 +28,12 @@
     "service_worker": "background.js"
   },
   "commands": {
-    "start-selection": {
+    "collect-content": {
       "suggested_key": {
         "default": "Ctrl+Shift+X",
         "mac": "Command+Shift+X"
       },
-      "description": "Start selection mode"
+      "description": "Collect content from current page (when active)"
     }
   }
 }

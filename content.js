@@ -197,26 +197,44 @@ if (window.location.href.startsWith('chrome://') || window.location.href.startsW
     event.stopPropagation();
     event.stopImmediatePropagation();
 
-    const element = event.target.closest('*');
+    // Use event.target directly if closest('*') causes issues, but closest is generally safer
+    const element = event.target.closest('*'); 
+    if (!element) return; // If somehow no element is found
 
     // Remove hover outline
     if (hoveredElement) {
       hoveredElement.style.outline = '';
     }
 
-    // Visual feedback for click
-    element.style.outline = '2px solid red';
-    setTimeout(() => element.style.outline = '', 500);
+    // Optional: Visual feedback for click (can be removed if distracting)
+    // element.style.outline = '2px solid green'; 
+    // setTimeout(() => element.style.outline = '', 300);
 
+    console.log("Element clicked, scraping markdown...");
     const markdown = scrapeToMarkdown(element);
+    console.log("Markdown generated length:", markdown.length);
 
-    deactivateExtension();
+    // Deactivate selection mode (listeners, hover effects) immediately after click
+    deactivateExtension(); 
 
-    navigator.clipboard.writeText(markdown).then(() => {
-      showToast('Content copied to clipboard');
-    }).catch((err) => {
-      console.error('Failed to copy content: ', err);
-    });
+    // --- Send the markdown to the background script --- 
+    if (markdown) {
+      chrome.runtime.sendMessage({ action: "sendText", text: markdown }, (response) => {
+        console.log("Background script responded:", response);
+        showToast('Content added to collection', 1000);
+      });
+    } else {
+      console.log("No markdown generated from the clicked element.");
+       showToast('No content found in selected element.', 1500);
+       // Send message indicating no text was found from this specific click
+       chrome.runtime.sendMessage({ action: "sendText", text: null }, (response) => {
+         if (chrome.runtime.lastError) {
+           console.error("Error sending empty text message:", chrome.runtime.lastError.message);
+         } else {
+           console.log("Background script responded to empty text message:", response);
+         }
+       });
+    }
 
   }
 
@@ -281,8 +299,7 @@ if (window.location.href.startsWith('chrome://') || window.location.href.startsW
     isExtensionActive = true;
   }
 
-  // Initialize the extension
+  // Initialize the extension selection mode when script is injected
   activateExtension();
-  showToast('Context Collector Active');
-  // window.CONTEXT_COLLECTOR_INITIALIZED = true
+  showToast('Context Collector Active - Click Element', 1500);
 }
