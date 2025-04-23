@@ -131,20 +131,24 @@ if (window.location.href.startsWith('chrome://') || window.location.href.startsW
         case 'hr':
           return `\n---\n\n`;
         case 'br':
-            return '  \n'; // Markdown line break
+          return '  \n'; // Markdown line break
         case 'table':
           return convertTableToMarkdown(node);
         case 'div':
-          case 'span':
-          case 'section':
-          case 'article':
-          case 'aside':
-          case 'header':
-          case 'footer':
-          case 'nav':
-                // Treat these mostly as containers, add space if they contain block-like children
-                // or if they separate other block elements. This is complex.
-                return children; // Pass content through mostly
+          if(node.firstElementChild?.tagName.toLowerCase() === 'div') {
+            return children;
+          }
+          return `${children}\n`;
+        case 'span':
+        case 'section':
+        case 'article':
+        case 'aside':
+        case 'header':
+        case 'footer':
+        case 'nav':
+          // Treat these mostly as containers, add space if they contain block-like children
+          // or if they separate other block elements. This is complex.
+          return children; // Pass content through mostly
         default:
           return children;
       }
@@ -160,18 +164,18 @@ if (window.location.href.startsWith('chrome://') || window.location.href.startsW
       markdown += `| ${headerCells.map(() => '---').join(' | ')} |\n`;
 
       for (let i = 1; i < rows.length; i++) {
-          const cells = Array.from(rows[i].querySelectorAll('td'));
-           // Ensure the number of cells matches the header for basic markdown tables
-          if (cells.length === headerCells.length) {
-              markdown += `| ${cells.map(cell => (cell.textContent || '').trim().replace(/\|/g, '\\|')).join(' | ')} |\n`;
-          } else {
-               // Handle rowspans/colspans crudely or skip row
-               console.warn("Skipping table row with inconsistent cell count:", rows[i]);
-          }
+        const cells = Array.from(rows[i].querySelectorAll('td'));
+        // Ensure the number of cells matches the header for basic markdown tables
+        if (cells.length === headerCells.length) {
+          markdown += `| ${cells.map(cell => (cell.textContent || '').trim().replace(/\|/g, '\\|')).join(' | ')} |\n`;
+        } else {
+          // Handle rowspans/colspans crudely or skip row
+          console.warn("Skipping table row with inconsistent cell count:", rows[i]);
+        }
       }
 
       return markdown + '\n'; // Add newline after the table
-  }
+    }
 
     // Convert the entire element to Markdown
     return convertToMarkdown(element).trim();
@@ -213,7 +217,7 @@ if (window.location.href.startsWith('chrome://') || window.location.href.startsW
     }).catch((err) => {
       console.error('Failed to copy content: ', err);
     });
-    
+
   }
 
   function handleElementHover(event) {
