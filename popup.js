@@ -39,14 +39,12 @@ async function startCollecting() {
 
         // Set collecting state and clear previous content
         await chrome.storage.local.set({ isCollecting: true, collectedContent: '' });
-        console.log("Collection started.");
         updateUI(true);
         // Close popup automatically after starting? Optional.
-        // window.close();
+        window.close();
         statusDiv.textContent = 'Collecting started. Use the hotkey to add pages.';
 
     } catch (error) {
-        console.error("Error starting collection:", error);
         statusDiv.textContent = 'Error starting collection.';
     }
 }
@@ -59,28 +57,15 @@ async function stopCollecting() {
 
         if (collectedText) {
             await navigator.clipboard.writeText(collectedText);
-            console.log("Collected content copied to clipboard.");
             statusDiv.textContent = 'Content copied to clipboard!';
         } else {
-            console.log("No content collected.");
             statusDiv.textContent = 'No content was collected.';
         }
-
-        // Clear collecting state and content
-        await chrome.storage.local.set({ isCollecting: false, collectedContent: '' });
-        console.log("Collection stopped.");
-        updateUI(false);
-
     } catch (error) {
-        console.error("Error stopping collection or copying:", error);
         statusDiv.textContent = 'Error stopping or copying.';
-        // Attempt to clear state even if copy failed
-        try {
-            await chrome.storage.local.set({ isCollecting: false, collectedContent: '' });
-            updateUI(false);
-        } catch (clearError) {
-            console.error("Error clearing state after failed stop:", clearError);
-        }
+    } finally {
+        await chrome.storage.local.set({ isCollecting: false, collectedContent: '' });
+        updateUI(false);
     }
 }
 
