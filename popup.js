@@ -1,46 +1,37 @@
-// Get references to the buttons and add a status element
-const startButton = document.getElementById('startCollecting'); // Assuming new ID
-const stopButton = document.getElementById('stopCollecting');   // Assuming new ID
+const startButton = document.getElementById('startCollecting');
+const stopButton = document.getElementById('stopCollecting');
 const optionsButton = document.getElementById('openOptions');
 const statusDiv = document.createElement('div');
-statusDiv.className = 'status-message'; // Add a class for styling
+statusDiv.className = 'status-message';
 document.body.appendChild(statusDiv);
 
-// Function to update the UI based on collecting state
 function updateUI(isCollecting) {
     if (isCollecting) {
-        // When collecting, hide Start button, show Stop button
-        startButton.style.display = 'none';       // Hide start button
-        stopButton.style.display = 'inline-block'; // Show stop button
-        stopButton.disabled = false;            // Ensure stop is enabled (might be disabled on restricted page load initially)
-        statusDiv.textContent = ''; // Clear status on state change
+        startButton.style.display = 'none';
+        stopButton.style.display = 'inline-block';
+        stopButton.disabled = false;
+        statusDiv.textContent = '';
     } else {
-        // When not collecting, show Start button, hide Stop button
-        startButton.style.display = 'inline-block'; // Show start button
-        startButton.disabled = false;              // Ensure start is enabled (unless on restricted page)
-        stopButton.style.display = 'none';        // Hide stop button
-        // statusDiv content is handled by start/stop functions
+        startButton.style.display = 'inline-block';
+        startButton.disabled = false;
+        stopButton.style.display = 'none';
     }
 }
 
-// Function to handle starting the collection
 async function startCollecting() {
     try {
-        // Check for restricted pages (like before)
         const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
         const currentTab = tabs[0];
         if (currentTab?.url && (currentTab.url.startsWith('chrome://') ||
-                                 currentTab.url.startsWith('edge://') ||
-                                 currentTab.url.startsWith('https://chrome.google.com/webstore'))) {
+            currentTab.url.startsWith('edge://') ||
+            currentTab.url.startsWith('https://chrome.google.com/webstore'))) {
             statusDiv.textContent = 'Cannot start collecting on this page.';
             startButton.disabled = true;
             return;
         }
 
-        // Set collecting state and clear previous content
         await chrome.storage.local.set({ isCollecting: true, collectedContent: '' });
         updateUI(true);
-        // Close popup automatically after starting? Optional.
         window.close();
         statusDiv.textContent = 'Collecting started. Use the hotkey to add pages.';
 
@@ -49,7 +40,6 @@ async function startCollecting() {
     }
 }
 
-// Function to handle stopping the collection and copying to clipboard
 async function stopCollecting() {
     try {
         const data = await chrome.storage.local.get('collectedContent');
@@ -69,8 +59,6 @@ async function stopCollecting() {
     }
 }
 
-// --- Initialization ---
-
 // Add click event listeners
 startButton.addEventListener('click', startCollecting);
 stopButton.addEventListener('click', stopCollecting);
@@ -87,9 +75,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Also disable start button on restricted pages on load
         const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
         const currentTab = tabs[0];
-         if (currentTab?.url && (currentTab.url.startsWith('chrome://') ||
-                                 currentTab.url.startsWith('edge://') ||
-                                 currentTab.url.startsWith('https://chrome.google.com/webstore'))) {
+        if (currentTab?.url && (currentTab.url.startsWith('chrome://') ||
+            currentTab.url.startsWith('edge://') ||
+            currentTab.url.startsWith('https://chrome.google.com/webstore'))) {
             statusDiv.textContent = 'Cannot run on this page.';
             startButton.disabled = true;
             stopButton.style.display = 'none'; // Ensure stop is hidden too

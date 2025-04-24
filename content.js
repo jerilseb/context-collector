@@ -1,9 +1,8 @@
-// Check if the current page is restricted
 if (window.location.href.startsWith('chrome://') || window.location.href.startsWith('edge://')) {
   showToast('Extension cannot run on chrome:// or edge:// pages.');
 } else {
   let hoveredElement = null;
-  let isSelectionActive = true; // Track if the extension is active
+  let isSelectionActive = true;
 
   const ignoredTags = ['script', 'style', 'svg', 'a'];
   const ignoredClasses = ['ad', 'ads', 'advertisement'];
@@ -174,17 +173,14 @@ if (window.location.href.startsWith('chrome://') || window.location.href.startsW
     }
   }
 
-  // Helper function to sanitize filenames
   function sanitizeFilename(title) {
-    // Replace invalid characters with underscores
     return title
-      .replace(/[/\\:*?"<>|]/g, '_') // Replace invalid characters
-      .trim() // Remove leading/trailing spaces
-      .replace(/\s+/g, '_') // Replace spaces with underscores
-      .substring(0, 100); // Limit filename length
+      .replace(/[/\\:*?"<>|]/g, '_')    // Replace invalid characters
+      .trim()                           // Remove leading/trailing spaces
+      .replace(/\s+/g, '_')             // Replace spaces with underscores
+      .substring(0, 100);               // Limit filename length
   }
 
-  // helper function to sanitize file content
   function sanitizeFileContent(content) {
     return content
       .replace(/^[ \t]+$/gm, '\n')      // Convert lines that contain only whitespace to a single newline
