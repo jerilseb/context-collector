@@ -126,27 +126,25 @@ if (window.location.href.startsWith('chrome://') || window.location.href.startsW
         // Handle inline code
         // If it's inside a PRE, the PRE handler will take precedence
         if (node.closest('pre')) {
-          return children; // Let PRE handle it
+          // Remove line number elements before getting text content
+          const clonedNode = node.cloneNode(true);
+          const lineNumberElements = clonedNode.querySelectorAll('[class*="line-number"]');
+          lineNumberElements.forEach(element => element.remove());
+          
+          const codeContent = clonedNode.textContent || '';
+
+          // Try to detect language from class names (e.g., class="language-javascript")
+          let language = '';
+          const langClass = Array.from(node.classList).find(cls =>
+            cls.startsWith('language-') || cls.startsWith('lang-')
+          );
+          if (langClass) {
+            language = langClass.replace('language-', '').replace('lang-', '');
+          }
+
+          return `\`\`\`${language}\n${codeContent}\n\`\`\`\n\n`;
         }
         return `\`${children}\``;
-      case 'pre':
-        // Directly access textContent to preserve whitespace and newlines within the <pre> block.
-        // Avoid recursively calling convertNodeToMarkdown on children here.
-        const codeContent = node.textContent || '';
-
-        // Bonus: Try to detect language from class names (e.g., class="language-javascript")
-        let language = '';
-        const codeElement = node.querySelector('code'); // Often code is inside <pre><code>
-        const targetElementForClass = codeElement || node; // Check <code> first, then <pre>
-        const langClass = Array.from(targetElementForClass.classList).find(cls =>
-          cls.startsWith('language-') || cls.startsWith('lang-')
-        );
-        if (langClass) {
-          language = langClass.replace('language-', '').replace('lang-', '');
-        }
-
-        // Return standard Markdown fenced code block
-        return `\`\`\`${language}\n${codeContent}\n\`\`\`\n\n`;
       case 'hr':
         return `\n---\n\n`;
       case 'br':
@@ -165,6 +163,7 @@ if (window.location.href.startsWith('chrome://') || window.location.href.startsW
       case 'header':
       case 'footer':
       case 'nav':
+      case 'pre':
         // Treat these mostly as containers, add space if they contain block-like children
         // or if they separate other block elements. This is complex.
         return children; // Pass content through mostly
