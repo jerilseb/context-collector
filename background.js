@@ -1,3 +1,11 @@
+function isRestrictedPage(tab) {
+  if (!tab?.url) {
+      return false;
+  }
+  const restrictedProtocols = ['chrome://', 'edge://', 'brave://', 'chrome-extension://'];
+  return restrictedProtocols.some(protocol => tab.url.startsWith(protocol));
+}
+
 chrome.runtime.onInstalled.addListener(async () => {
   try {
     const { isCollecting, collectedContent, isSingleCapture } = await chrome.storage.local.get([
@@ -23,6 +31,10 @@ chrome.runtime.onInstalled.addListener(async () => {
 chrome.commands.onCommand.addListener(async (command, tab) => {
   if (command === "collect-content") {
     try {
+      if (isRestrictedPage(tab)) {
+        console.log("Cannot collect content on this page.");
+        return;
+      }
       const { isCollecting } = await chrome.storage.local.get('isCollecting');
       if (isCollecting) {
         await chrome.scripting.executeScript({

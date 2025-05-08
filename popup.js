@@ -10,10 +10,8 @@ function isRestrictedPage(tab) {
     if (!tab?.url) {
         return false;
     }
-    const restrictedProtocols = ['chrome://', 'edge://', 'brave://'];
-    const webstoreUrl = 'https://chrome.google.com/webstore';
-
-    return restrictedProtocols.some(protocol => tab.url.startsWith(protocol)) || tab.url.startsWith(webstoreUrl);
+    const restrictedProtocols = ['chrome://', 'edge://', 'brave://', 'chrome-extension://'];
+    return restrictedProtocols.some(protocol => tab.url.startsWith(protocol));
 }
 
 function updateUI(isCollecting) {
