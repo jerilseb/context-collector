@@ -1,3 +1,4 @@
+const singleCaptureButton = document.getElementById('singleCapture');
 const startButton = document.getElementById('startCollecting');
 const stopButton = document.getElementById('stopCollecting');
 const optionsButton = document.getElementById('openOptions');
@@ -48,6 +49,32 @@ async function startCollecting() {
     }
 }
 
+async function singleCapture() {
+    try {
+        const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+        const currentTab = tabs[0];
+        if (isRestrictedPage(currentTab)) {
+            statusDiv.textContent = 'Cannot capture on this page.';
+            singleCaptureButton.disabled = true;
+            return;
+        }
+
+        // Set a flag to indicate single capture mode
+        await chrome.storage.local.set({ isSingleCapture: true });
+        
+        // Inject the content script immediately
+        await chrome.scripting.executeScript({
+            target: { tabId: currentTab.id },
+            files: ['content.js']
+        });
+        
+        // Close the popup
+        window.close();
+    } catch (error) {
+        statusDiv.textContent = 'Error starting capture.';
+    }
+}
+
 async function stopCollecting() {
     try {
         const data = await chrome.storage.local.get('collectedContent');
@@ -68,6 +95,7 @@ async function stopCollecting() {
 }
 
 // Add click event listeners
+singleCaptureButton.addEventListener('click', singleCapture);
 startButton.addEventListener('click', startCollecting);
 stopButton.addEventListener('click', stopCollecting);
 optionsButton.addEventListener('click', () => {

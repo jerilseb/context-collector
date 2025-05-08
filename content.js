@@ -1,6 +1,7 @@
 (function () {
   let hoveredElement = null;
   let isSelectionActive = true;
+  let isSingleCapture = false;
 
   const ignoredTags = ['script', 'style', 'svg', 'a'];
   const ignoredClasses = ['ad', 'ads', 'advertisement'];
@@ -206,11 +207,36 @@
 
     deactivateSelection();
 
-    // --- Send the markdown to the background script --- 
-    if (markdown) {
-      await appendToStorage(markdown);
-    } else {
-      showToast('No content found in selected element.', 1500);
+    // Check if we're in single capture mode
+    try {
+      const { isSingleCapture } = await chrome.storage.local.get('isSingleCapture');
+      
+      if (isSingleCapture) {
+        // Single capture mode - copy directly to clipboard
+        if (markdown) {
+          await navigator.clipboard.writeText(markdown);
+          showToast('Content copied to clipboard!', 1500);
+          // Reset the single capture mode flag
+          await chrome.storage.local.set({ isSingleCapture: false });
+        } else {
+          showToast('No content found in selected element.', 1500);
+        }
+      } else {
+        // Regular collection mode - append to storage
+        if (markdown) {
+          await appendToStorage(markdown);
+        } else {
+          showToast('No content found in selected element.', 1500);
+        }
+      }
+    } catch (error) {
+      console.error("Error handling element click:", error);
+      // Fall back to regular collection mode
+      if (markdown) {
+        await appendToStorage(markdown);
+      } else {
+        showToast('No content found in selected element.', 1500);
+      }
     }
   }
 
@@ -288,7 +314,27 @@
     isSelectionActive = true;
   }
 
+  // Check if we're in single capture mode
+  async function checkSingleCaptureMode() {
+    try {
+      const { isSingleCapture: singleCaptureMode } = await chrome.storage.local.get('isSingleCapture');
+      // Set the module-level variable
+      isSingleCapture = !!singleCaptureMode;
+      
+      if (isSingleCapture) {
+        // We're in single capture mode
+        showToast('Select text to copy to clipboard', 1500);
+      } else {
+        showToast('Context Collector Active', 1500);
+      }
+    } catch (error) {
+      console.error("Error checking single capture mode:", error);
+      isSingleCapture = false;
+      showToast('Context Collector Active', 1500);
+    }
+  }
+
   // Initialize the extension selection mode when script is injected
   activateSelection();
-  showToast('Context Collector Active', 1500);
+  checkSingleCaptureMode();
 })();

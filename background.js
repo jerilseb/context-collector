@@ -1,11 +1,19 @@
 chrome.runtime.onInstalled.addListener(async () => {
   try {
-    const { isCollecting, collectedContent } = await chrome.storage.local.get(['isCollecting', 'collectedContent']);
+    const { isCollecting, collectedContent, isSingleCapture } = await chrome.storage.local.get([
+      'isCollecting', 
+      'collectedContent',
+      'isSingleCapture'
+    ]);
+    
     if (!isCollecting) {
       await chrome.storage.local.set({ isCollecting: false });
     }
     if (!collectedContent) {
       await chrome.storage.local.set({ collectedContent: '' });
+    }
+    if (isSingleCapture === undefined) {
+      await chrome.storage.local.set({ isSingleCapture: false });
     }
   } catch (error) {
     console.error('Error initializing storage:', error);
