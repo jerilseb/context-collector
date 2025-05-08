@@ -5,6 +5,16 @@ const statusDiv = document.createElement('div');
 statusDiv.className = 'status-message';
 document.body.appendChild(statusDiv);
 
+function isRestrictedPage(tab) {
+    if (!tab?.url) {
+        return false;
+    }
+    const restrictedProtocols = ['chrome://', 'edge://', 'brave://'];
+    const webstoreUrl = 'https://chrome.google.com/webstore';
+
+    return restrictedProtocols.some(protocol => tab.url.startsWith(protocol)) || tab.url.startsWith(webstoreUrl);
+}
+
 function updateUI(isCollecting) {
     if (isCollecting) {
         startButton.style.display = 'none';
@@ -22,9 +32,7 @@ async function startCollecting() {
     try {
         const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
         const currentTab = tabs[0];
-        if (currentTab?.url && (currentTab.url.startsWith('chrome://') ||
-            currentTab.url.startsWith('edge://') ||
-            currentTab.url.startsWith('https://chrome.google.com/webstore'))) {
+        if (isRestrictedPage(currentTab)) {
             statusDiv.textContent = 'Cannot start collecting on this page.';
             startButton.disabled = true;
             return;
@@ -75,9 +83,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Also disable start button on restricted pages on load
         const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
         const currentTab = tabs[0];
-        if (currentTab?.url && (currentTab.url.startsWith('chrome://') ||
-            currentTab.url.startsWith('edge://') ||
-            currentTab.url.startsWith('https://chrome.google.com/webstore'))) {
+        if (isRestrictedPage(currentTab)) {
             statusDiv.textContent = 'Cannot run on this page.';
             startButton.disabled = true;
             stopButton.style.display = 'none'; // Ensure stop is hidden too

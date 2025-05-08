@@ -1,29 +1,22 @@
-// Initialize storage on installation
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.storage.local.get(['isCollecting', 'collectedContent'], (result) => {
-    if (result.isCollecting === undefined) {
-      chrome.storage.local.set({ isCollecting: false });
-      console.log('Initialized isCollecting state to false.');
+chrome.runtime.onInstalled.addListener(async () => {
+  try {
+    const { isCollecting, collectedContent } = await chrome.storage.local.get(['isCollecting', 'collectedContent']);
+    if (!isCollecting) {
+      await chrome.storage.local.set({ isCollecting: false });
     }
-    if (result.collectedContent === undefined) {
-      chrome.storage.local.set({ collectedContent: '' });
-      console.log('Initialized collectedContent to empty string.');
+    if (!collectedContent) {
+      await chrome.storage.local.set({ collectedContent: '' });
     }
-  });
+  } catch (error) {
+    console.error('Error initializing storage:', error);
+  }
 });
 
-// Listen for the command (hotkey)
 chrome.commands.onCommand.addListener(async (command, tab) => {
   if (command === "collect-content") {
     try {
-      const data = await chrome.storage.local.get('isCollecting');
-      if (data.isCollecting) {
-        if (tab?.url && (tab.url.startsWith('chrome://') ||
-          tab.url.startsWith('edge://') ||
-          tab.url.startsWith('https://chrome.google.com/webstore'))) {
-          return;
-        }
-
+      const { isCollecting } = await chrome.storage.local.get('isCollecting');
+      if (isCollecting) {
         await chrome.scripting.executeScript({
           target: { tabId: tab.id },
           files: ['content.js']
@@ -41,15 +34,17 @@ chrome.commands.onCommand.addListener(async (command, tab) => {
 // Listen for messages from content scripts
 chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   console.log("Message received in background:", message);
-  if (message.action === "sendText" && message.text) {
+  const { action, text } = message;
+  if (action === "sendText" && text) {
     try {
-      const data = await chrome.storage.local.get('collectedContent');
-      let currentContent = data.collectedContent || '';
+      const { collectedContent } = await chrome.storage.local.get('collectedContent');
+      let currentContent = collectedContent || '';
 
       // Append new content with separators and maybe the URL
-      const sourceUrl = sender.tab?.url || 'Unknown page';
+      const { tab } = sender;
+      const sourceUrl = tab?.url || 'Unknown page';
       const separator = `\n\n----- Content from ${sourceUrl} -----\n\n`;
-      const newContent = currentContent + separator + message.text;
+      const newContent = currentContent + separator + text;
 
       await chrome.storage.local.set({ collectedContent: newContent });
       console.log("Appended content from:", sourceUrl);

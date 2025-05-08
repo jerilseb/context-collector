@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Context Collector",
-  "version": "1.0",
+  "version": "1.0.1",
   "permissions": [
     "activeTab",
     "scripting",
@@ -30,8 +30,8 @@
   "commands": {
     "collect-content": {
       "suggested_key": {
-        "default": "Ctrl+Shift+X",
-        "mac": "Command+Shift+X"
+        "default": "Ctrl+Shift+Z",
+        "mac": "Command+Shift+Z"
       },
       "description": "Collect content from current page (when active)"
     }
