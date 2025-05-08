@@ -39,8 +39,7 @@ async function startCollecting() {
 
         await chrome.storage.local.set({ isCollecting: true, collectedContent: '' });
         updateUI(true);
-        window.close();
-        statusDiv.textContent = 'Collecting started. Use the hotkey to add pages.';
+        statusDiv.textContent = 'Collection started. Use the hotkey to add content';
 
     } catch (error) {
         statusDiv.textContent = 'Error starting collection.';
