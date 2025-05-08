@@ -30,8 +30,8 @@
   "commands": {
     "collect-content": {
       "suggested_key": {
-        "default": "Ctrl+Shift+Z",
-        "mac": "Command+Shift+Z"
+        "default": "Alt+Z",
+        "mac": "Alt+Z"
       },
       "description": "Collect content from current page (when active)"
     }
