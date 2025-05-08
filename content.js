@@ -218,15 +218,12 @@
     try {
       const { collectedContent } = await chrome.storage.local.get('collectedContent');
       let currentContent = collectedContent || '';
-      const sourceUrl = window.location.href; // Get URL from content script
-      const separator = `\n\n----- Content from ${sourceUrl} -----\n\n`;
+      const separator = `\n\n----- Content from ${window.location.href} -----\n\n`;
       const updatedContent = currentContent + separator + newText;
       await chrome.storage.local.set({ collectedContent: updatedContent });
-      console.log("Appended content from (content script):", sourceUrl);
       showToast('Content added to collection', 1000);
     } catch (error) {
-      console.error("Error appending collected content from content script:", error);
-      showToast('Failed to send content.', 1500);
+      showToast('Failed to add content.', 1500);
     }
   }
 
