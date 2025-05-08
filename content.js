@@ -208,17 +208,25 @@
 
     // --- Send the markdown to the background script --- 
     if (markdown) {
-      try {
-        const response = await chrome.runtime.sendMessage({ action: "sendText", text: markdown });
-        console.log("Background script responded:", response);
-        showToast('Content added to collection', 1000);
-      } catch (err) {
-        console.error("Error sending markdown:", err);
-        showToast('Failed to send content.', 1500);
-      }
+      await appendToStorage(markdown);
     } else {
-      console.log("No markdown generated from the clicked element.");
       showToast('No content found in selected element.', 1500);
+    }
+  }
+
+  async function appendToStorage(newText) {
+    try {
+      const { collectedContent } = await chrome.storage.local.get('collectedContent');
+      let currentContent = collectedContent || '';
+      const sourceUrl = window.location.href; // Get URL from content script
+      const separator = `\n\n----- Content from ${sourceUrl} -----\n\n`;
+      const updatedContent = currentContent + separator + newText;
+      await chrome.storage.local.set({ collectedContent: updatedContent });
+      console.log("Appended content from (content script):", sourceUrl);
+      showToast('Content added to collection', 1000);
+    } catch (error) {
+      console.error("Error appending collected content from content script:", error);
+      showToast('Failed to send content.', 1500);
     }
   }
 

@@ -30,30 +30,3 @@ chrome.commands.onCommand.addListener(async (command, tab) => {
     }
   }
 });
-
-// Listen for messages from content scripts
-chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
-  console.log("Message received in background:", message);
-  const { action, text } = message;
-  if (action === "sendText" && text) {
-    try {
-      const { collectedContent } = await chrome.storage.local.get('collectedContent');
-      let currentContent = collectedContent || '';
-
-      // Append new content with separators and maybe the URL
-      const { tab } = sender;
-      const sourceUrl = tab?.url || 'Unknown page';
-      const separator = `\n\n----- Content from ${sourceUrl} -----\n\n`;
-      const newContent = currentContent + separator + text;
-
-      await chrome.storage.local.set({ collectedContent: newContent });
-      console.log("Appended content from:", sourceUrl);
-      sendResponse({ status: "success" });
-
-    } catch (error) {
-      console.error("Error appending collected content:", error);
-      sendResponse({ status: "error", message: error.message });
-    }
-    return true;
-  }
-});
