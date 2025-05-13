@@ -34,6 +34,10 @@
   }
 
   function shouldIgnoreElement(node) {
+    if (node.nodeType !== Node.ELEMENT_NODE) {
+      return true;
+    }
+
     // Ignore specific tags
     if (ignoredTags.includes(node.tagName.toLowerCase())) {
       return true;
@@ -46,6 +50,11 @@
 
     // Ignore elements with specific attributes
     if (ignoredAttributes.some(attr => node.hasAttribute(attr))) {
+      return true;
+    }
+
+    // Ignore elements with display: none
+    if (window.getComputedStyle(node)?.display === 'none') {
       return true;
     }
 
@@ -80,7 +89,7 @@
       return node.textContent.trim();
     }
 
-    if (node.nodeType !== Node.ELEMENT_NODE || shouldIgnoreElement(node)) {
+    if (shouldIgnoreElement(node)) {
       return '';
     }
 
@@ -202,7 +211,7 @@
     // Check if we're in single capture mode
     try {
       const { isSingleCapture } = await chrome.storage.local.get('isSingleCapture');
-      
+
       if (isSingleCapture) {
         // Single capture mode - copy directly to clipboard
         if (markdown) {
@@ -308,7 +317,7 @@
     try {
       const { isSingleCapture: singleCaptureMode } = await chrome.storage.local.get('isSingleCapture');
       // Set the module-level variable
-      isSingleCapture = !!singleCaptureMode; 
+      isSingleCapture = !!singleCaptureMode;
       showToast('Select content to copy to clipboard', 1500);
 
     } catch (error) {
