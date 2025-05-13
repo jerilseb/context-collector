@@ -1,7 +1,6 @@
 (function () {
   let hoveredElement = null;
   let isSelectionActive = true;
-  let isSingleCapture = false;
 
   const ignoredTags = ['script', 'style', 'svg', 'a'];
   const ignoredClasses = ['ad', 'ads', 'advertisement'];
@@ -311,18 +310,9 @@
     document.addEventListener('mouseover', handleElementHover);
     document.addEventListener('mouseout', handleElementHoverOut);
     document.addEventListener('keydown', handleEscapeKey); // Add escape listener
-    // Set extension as active
     isSelectionActive = true;
 
-    try {
-      const { isSingleCapture: singleCaptureMode } = await chrome.storage.local.get('isSingleCapture');
-      // Set the module-level variable
-      isSingleCapture = !!singleCaptureMode;
-      showToast('Select content to copy to clipboard', 1500);
-
-    } catch (error) {
-      isSingleCapture = false;
-    }
+    showToast('Select content to copy to clipboard', 1500);
   }
 
   // Initialize the extension selection mode when script is injected
