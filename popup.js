@@ -38,8 +38,15 @@ async function startCollecting() {
         }
 
         await chrome.storage.local.set({ isCollecting: true, collectedContent: '' });
-        updateUI(true);
-        statusDiv.textContent = 'Collection started. Use the hotkey to add content';
+        // updateUI(true);
+
+        await chrome.scripting.executeScript({
+            target: { tabId: currentTab.id },
+            files: ['notification.js']
+        });
+        
+        window.close();
+        // statusDiv.textContent = 'Collection started. Use the hotkey to add content';
 
     } catch (error) {
         statusDiv.textContent = 'Error starting collection.';

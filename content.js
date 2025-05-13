@@ -171,14 +171,6 @@
     }
   }
 
-  function sanitizeFilename(title) {
-    return title
-      .replace(/[/\\:*?"<>|]/g, '_')    // Replace invalid characters
-      .trim()                           // Remove leading/trailing spaces
-      .replace(/\s+/g, '_')             // Replace spaces with underscores
-      .substring(0, 100);               // Limit filename length
-  }
-
   function sanitizeFileContent(content) {
     return content
       .replace(/^[ \t]+$/gm, '\n')      // Convert lines that contain only whitespace to a single newline
@@ -304,7 +296,7 @@
     isSelectionActive = false;
   }
 
-  function activateSelection() {
+  async function activateSelection() {
     // Reattach event listeners
     document.addEventListener('click', handleElementClick, true);
     document.addEventListener('mouseover', handleElementHover);
@@ -312,29 +304,18 @@
     document.addEventListener('keydown', handleEscapeKey); // Add escape listener
     // Set extension as active
     isSelectionActive = true;
-  }
 
-  // Check if we're in single capture mode
-  async function checkSingleCaptureMode() {
     try {
       const { isSingleCapture: singleCaptureMode } = await chrome.storage.local.get('isSingleCapture');
       // Set the module-level variable
-      isSingleCapture = !!singleCaptureMode;
-      
-      if (isSingleCapture) {
-        // We're in single capture mode
-        showToast('Select text to copy to clipboard', 1500);
-      } else {
-        showToast('Context Collector Active', 1500);
-      }
+      isSingleCapture = !!singleCaptureMode; 
+      showToast('Select content to copy to clipboard', 1500);
+
     } catch (error) {
-      console.error("Error checking single capture mode:", error);
       isSingleCapture = false;
-      showToast('Context Collector Active', 1500);
     }
   }
 
   // Initialize the extension selection mode when script is injected
   activateSelection();
-  checkSingleCaptureMode();
 })();
