@@ -33,7 +33,7 @@
     }, duration);
   }
 
-  function shouldIgnoreElement(node) {
+  function shouldIgnoreNode(node) {
     if (node.nodeType !== Node.ELEMENT_NODE) {
       return true;
     }
@@ -89,7 +89,7 @@
       return node.textContent.trim();
     }
 
-    if (shouldIgnoreElement(node)) {
+    if (shouldIgnoreNode(node)) {
       return '';
     }
 
