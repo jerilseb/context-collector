@@ -23,7 +23,6 @@
   const lineNumberQuerySelector = lineNumberClassPatterns
     .map(className => `[class*="${className}"]`)
     .join(', ');
-    console.log(lineNumberQuerySelector);
 
   function showToast(message, duration = 1000) {
     const toast = document.createElement('div');
@@ -288,31 +287,28 @@
     if (!isSelectionActive) return; // Do nothing if the extension is inactive
 
     const element = event.target.closest('*');
-    if (element && element !== hoveredElement) {
-      // Remove overlay from previously hovered element
-      const existingOverlay = document.getElementById('element-overlay');
-      if (existingOverlay) {
-        existingOverlay.remove();
-      }
+    if (!element || element === hoveredElement) return;
 
-      // Create and position overlay for the currently hovered element
-      const rect = element.getBoundingClientRect();
-      const overlay = document.createElement('div');
-      overlay.id = 'element-overlay';
+    // Remove overlay from previously hovered element
+    document.getElementById('element-overlay')?.remove();
 
-      // Use absolute positioning instead of fixed, relative to the document
-      overlay.style.position = 'absolute';
-      overlay.style.top = (rect.top + window.scrollY) + 'px';
-      overlay.style.left = (rect.left + window.scrollX) + 'px';
-      overlay.style.width = rect.width + 'px';
-      overlay.style.height = rect.height + 'px';
-      overlay.style.backgroundColor = 'rgba(3, 252, 123, 0.3)';
-      overlay.style.pointerEvents = 'none';
-      overlay.style.zIndex = '9999';
+    // Create and position overlay for the currently hovered element
+    const rect = element.getBoundingClientRect();
+    const overlay = document.createElement('div');
+    overlay.id = 'element-overlay';
 
-      document.body.appendChild(overlay);
-      hoveredElement = element;
-    }
+    // Use absolute positioning instead of fixed, relative to the document
+    overlay.style.position = 'absolute';
+    overlay.style.top = (rect.top + window.scrollY) + 'px';
+    overlay.style.left = (rect.left + window.scrollX) + 'px';
+    overlay.style.width = rect.width + 'px';
+    overlay.style.height = rect.height + 'px';
+    overlay.style.backgroundColor = 'rgba(3, 252, 123, 0.3)';
+    overlay.style.pointerEvents = 'none';
+    overlay.style.zIndex = '9999';
+
+    document.body.appendChild(overlay);
+    hoveredElement = element;
   }
 
   function handleEscapeKey(event) {
