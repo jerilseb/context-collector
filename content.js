@@ -273,7 +273,10 @@
     try {
       const { collectedContent } = await chrome.storage.local.get('collectedContent');
       let currentContent = collectedContent || '';
-      const separator = `\n\n-----------------\n\n`;
+      let separator = '';
+      if (currentContent) {
+        separator = `\n\n-----------------\n\n`;
+      }
       const updatedContent = currentContent + separator + newText;
       await chrome.storage.local.set({ collectedContent: updatedContent });
     } catch (error) {
