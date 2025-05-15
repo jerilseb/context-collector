@@ -11,7 +11,6 @@
     'script',
     'style',
     'svg',
-    'a',
     'button',
     'input',
     'label'
