@@ -109,10 +109,6 @@
       codeContent = clonedNode.innerText;
     }
 
-    if (!codeContent.endsWith('\n')) {
-      codeContent += '\n';
-    }
-
     // Try to detect language from class names (e.g., class="language-javascript")
     let language = '';
     const langClass = Array.from(node.classList).find(cls =>
@@ -122,7 +118,7 @@
       language = langClass.replace('language-', '').replace('lang-', '');
     }
 
-    return `\`\`\`${language}\n${codeContent}\`\`\`\n\n`;
+    return `\`\`\`${language}\n${codeContent.trim()}\n\`\`\`\n\n`;
   }
 
   function convertNodeToMarkdown(node) {
@@ -197,6 +193,9 @@
       case 'table':
         return convertTableToMarkdown(node);
       case 'div':
+        if (node.getAttribute('role') === 'code') {
+          return convertCodeBlockToMarkdown(node);
+        }
         if (node.firstElementChild?.tagName.toLowerCase() === 'div') {
           return children;
         }
