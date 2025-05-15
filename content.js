@@ -111,10 +111,11 @@
     const lineNumberElements = clonedNode.querySelectorAll(lineNumberQuerySelector);
     lineNumberElements.forEach(element => element.remove());
 
-    // depending on the dom structure, textContent sometimes captures line-breaks.
-    // If line-breaks are already captured by textContent, using innerText can add extra line-breaks
+    // depending on the dom structure, textContent can miss line-breaks.
+    // We prefer textContent, but fallback to innerText
     let codeContent = clonedNode.textContent;
-    if (!codeContent.includes('\n')) {
+    const newLineIndex = codeContent.indexOf('\n');
+    if (newLineIndex === -1 || newLineIndex > 100) {
       codeContent = clonedNode.innerText;
     }
 
