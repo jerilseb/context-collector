@@ -129,17 +129,17 @@
 
     switch (tagName) {
       case 'h1':
-        return `# ${node.textContent}\n\n`;
+        return `\n# ${node.textContent}\n\n`;
       case 'h2':
-        return `## ${node.textContent}\n\n`;
+        return `\n## ${node.textContent}\n\n`;
       case 'h3':
-        return `### ${node.textContent}\n\n`;
+        return `\n### ${node.textContent}\n\n`;
       case 'h4':
-        return `#### ${node.textContent}\n\n`;
+        return `\n#### ${node.textContent}\n\n`;
       case 'h5':
-        return `##### ${node.textContent}\n\n`;
+        return `\n##### ${node.textContent}\n\n`;
       case 'h6':
-        return `###### ${node.textContent}\n\n`;
+        return `\n###### ${node.textContent}\n\n`;
       case 'p':
         return `\n${children}\n\n`;
       case 'b':
