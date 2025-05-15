@@ -97,7 +97,7 @@
     // Disabling cloning because innerText of clonedNode loses visual styles like line-breaks
     const clonedNode = node;
     // const clonedNode = node.cloneNode(true);
-    
+
     // Remove line number elements before getting text content
     const lineNumberElements = clonedNode.querySelectorAll('[class*="line-number"]');
     lineNumberElements.forEach(element => element.remove());
@@ -285,12 +285,26 @@
 
     const element = event.target.closest('*');
     if (element && element !== hoveredElement) {
-      // Remove outline from previously hovered element
-      if (hoveredElement) {
-        hoveredElement.style.outline = '';
+      // Remove overlay from previously hovered element
+      const existingOverlay = document.getElementById('element-overlay');
+      if (existingOverlay) {
+        existingOverlay.remove();
       }
-      // Add outline to the currently hovered element
-      element.style.outline = '2px solid red';
+
+      // Create and position overlay for the currently hovered element
+      const rect = element.getBoundingClientRect();
+      const overlay = document.createElement('div');
+      overlay.id = 'element-overlay';
+      overlay.style.position = 'fixed';
+      overlay.style.top = rect.top + 'px';
+      overlay.style.left = rect.left + 'px';
+      overlay.style.width = rect.width + 'px';
+      overlay.style.height = rect.height + 'px';
+      overlay.style.backgroundColor = 'rgba(3, 252, 123, 0.25)'; // Semi-transparent version of your #03fc7b
+      overlay.style.pointerEvents = 'none'; // Make sure overlay doesn't interfere with clicks
+      overlay.style.zIndex = '9999'; // Ensure overlay appears above other elements
+
+      document.body.appendChild(overlay);
       hoveredElement = element;
     }
   }
@@ -308,8 +322,11 @@
 
     const element = event.target.closest('*');
     if (element === hoveredElement) {
-      // Remove outline when mouse leaves the element
-      element.style.outline = '';
+      // Remove overlay when mouse leaves the element
+      const existingOverlay = document.getElementById('element-overlay');
+      if (existingOverlay) {
+        existingOverlay.remove();
+      }
       hoveredElement = null;
     }
   }
@@ -321,11 +338,14 @@
     document.removeEventListener('mouseout', handleElementHoverOut);
     document.removeEventListener('keydown', handleEscapeKey); // Remove escape listener
 
-    // Reset hovered element
-    if (hoveredElement) {
-      hoveredElement.style.outline = '';
-      hoveredElement = null;
+    // Remove overlay if it exists
+    const existingOverlay = document.getElementById('element-overlay');
+    if (existingOverlay) {
+      existingOverlay.remove();
     }
+
+    // Reset hovered element
+    hoveredElement = null;
 
     // Set extension as inactive
     isSelectionActive = false;
@@ -341,7 +361,6 @@
 
     showToast('Select content to copy to clipboard', 1500);
   }
-
   // Initialize the extension selection mode when script is injected
   activateSelection();
 })();
