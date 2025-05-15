@@ -160,7 +160,7 @@
         return `*${children}*`;
       case 'a':
         if (node.nextSibling?.nodeType === TEXT_NODE || node.previousSibling?.nodeType === TEXT_NODE) {
-          return ` ${node.textContent} `;
+          return ` ${children} `;
         }
         return '';
       case 'img':
