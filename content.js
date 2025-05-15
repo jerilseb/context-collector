@@ -187,9 +187,10 @@
       case 'footer':
       case 'nav':
       case 'pre':
-        // Treat these mostly as containers, add space if they contain block-like children
-        // or if they separate other block elements. This is complex.
-        return children; // Pass content through mostly
+        if (node.querySelector('code') !== null) {
+          return children;
+        }
+        return `\n${node.textContent}`;
       default:
         return children;
     }
