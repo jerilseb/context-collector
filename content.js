@@ -342,7 +342,7 @@
     document.removeEventListener('mouseout', handleElementHoverOut);
     document.removeEventListener('keydown', handleEscapeKey); // Remove escape listener
 
-    // // Remove overlay if it exists
+    // // Remove overlay
     // document.getElementById('element-overlay')?.remove();
 
     // Remove outline
