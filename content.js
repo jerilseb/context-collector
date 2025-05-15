@@ -161,14 +161,12 @@
       case 'img':
         return `\n`;
       case 'ul':
-        return `${children}`;
       case 'ol':
         return `${children}`;
       case 'li':
-        const prefix = node.parentElement.tagName.toLowerCase() === 'ol' ? '1. ' : '- ';
-        return `${prefix}${children}\n`;
+        return `- ${children}\n`;
       case 'blockquote':
-        return `> ${children}\n\n`;
+        return `> ${node.textContent}\n\n`;
       case 'code':
         // If it's inside a PRE, it's a code block
         if (node.closest('pre')) {
@@ -177,9 +175,15 @@
         // inline code
         return `\`${children}\``;
       case 'pre':
+        // Huggingface docs don't have a code within pre
+        if (Array.from(node.parentNode.classList).some(cls => cls.includes('code'))) {
+          return convertCodeBlockToMarkdown(node);
+        }
+        // Most pre have a code inside them, defer to the code node
         if (node.querySelector('code') !== null) {
           return children;
         }
+        // Else just get the textContent, (do we innerText?)
         return `\n${node.textContent}\n`;
       case 'hr':
         return `\n---\n\n`;
