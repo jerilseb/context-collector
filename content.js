@@ -295,14 +295,16 @@
       const rect = element.getBoundingClientRect();
       const overlay = document.createElement('div');
       overlay.id = 'element-overlay';
-      overlay.style.position = 'fixed';
-      overlay.style.top = rect.top + 'px';
-      overlay.style.left = rect.left + 'px';
+
+      // Use absolute positioning instead of fixed, relative to the document
+      overlay.style.position = 'absolute';
+      overlay.style.top = (rect.top + window.scrollY) + 'px';
+      overlay.style.left = (rect.left + window.scrollX) + 'px';
       overlay.style.width = rect.width + 'px';
       overlay.style.height = rect.height + 'px';
-      overlay.style.backgroundColor = 'rgba(3, 252, 123, 0.25)'; // Semi-transparent version of your #03fc7b
-      overlay.style.pointerEvents = 'none'; // Make sure overlay doesn't interfere with clicks
-      overlay.style.zIndex = '9999'; // Ensure overlay appears above other elements
+      overlay.style.backgroundColor = 'rgba(3, 252, 123, 0.3)';
+      overlay.style.pointerEvents = 'none';
+      overlay.style.zIndex = '9999';
 
       document.body.appendChild(overlay);
       hoveredElement = element;
