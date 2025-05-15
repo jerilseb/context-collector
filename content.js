@@ -293,8 +293,7 @@
     }
     element.style.outline = '4px solid red';
 
-    // // Create and position overlay for the currently hovered element
-    // // Remove overlay from previously hovered element
+    // // Create an overlay on the hovered element
     // document.getElementById('element-overlay')?.remove();
     // const rect = element.getBoundingClientRect();
     // const overlay = document.createElement('div');
