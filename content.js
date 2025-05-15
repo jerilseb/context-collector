@@ -2,9 +2,17 @@
   let hoveredElement = null;
   let isSelectionActive = true;
 
-  const ignoredTags = ['script', 'style', 'svg', 'a'];
   const ignoredClasses = ['ad', 'ads', 'advertisement'];
   const ignoredAttributes = [];
+  const ignoredTags = [
+    'script',
+    'style',
+    'svg',
+    'a',
+    'button',
+    'input',
+    'label'
+  ];
 
   function showToast(message, duration = 1000) {
     const toast = document.createElement('div');
@@ -168,6 +176,11 @@
         }
         // inline code
         return `\`${children}\``;
+      case 'pre':
+        if (node.querySelector('code') !== null) {
+          return children;
+        }
+        return `\n${node.textContent}\n`;
       case 'hr':
         return `\n---\n\n`;
       case 'br':
@@ -186,11 +199,7 @@
       case 'header':
       case 'footer':
       case 'nav':
-      case 'pre':
-        if (node.querySelector('code') !== null) {
-          return children;
-        }
-        return `\n${node.textContent}\n`;
+        return children;
       default:
         return children;
     }
