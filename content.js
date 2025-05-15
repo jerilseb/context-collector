@@ -15,6 +15,15 @@
     'input',
     'label'
   ];
+  const lineNumberClassPatterns = [
+    "line-number",
+    "ace_gutter"
+  ]
+
+  const lineNumberQuerySelector = lineNumberClassPatterns
+    .map(className => `[class*="${className}"]`)
+    .join(', ');
+    console.log(lineNumberQuerySelector);
 
   function showToast(message, duration = 1000) {
     const toast = document.createElement('div');
@@ -99,7 +108,7 @@
     // const clonedNode = node.cloneNode(true);
 
     // Remove line number elements before getting text content
-    const lineNumberElements = clonedNode.querySelectorAll('[class*="line-number"]');
+    const lineNumberElements = clonedNode.querySelectorAll(lineNumberQuerySelector);
     lineNumberElements.forEach(element => element.remove());
 
     // depending on the dom structure, textContent sometimes captures line-breaks.
