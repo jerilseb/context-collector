@@ -289,25 +289,28 @@
     const element = event.target.closest('*');
     if (!element || element === hoveredElement) return;
 
-    // Remove overlay from previously hovered element
-    document.getElementById('element-overlay')?.remove();
+    // Show outline on the hovered element
+    if (hoveredElement) {
+      hoveredElement.style.outline = '';
+    }
+    element.style.outline = '2px solid red';
 
-    // Create and position overlay for the currently hovered element
-    const rect = element.getBoundingClientRect();
-    const overlay = document.createElement('div');
-    overlay.id = 'element-overlay';
+    // // Create and position overlay for the currently hovered element
+    // // Remove overlay from previously hovered element
+    // document.getElementById('element-overlay')?.remove();
+    // const rect = element.getBoundingClientRect();
+    // const overlay = document.createElement('div');
+    // overlay.id = 'element-overlay';
+    // overlay.style.position = 'absolute';
+    // overlay.style.top = (rect.top + window.scrollY) + 'px';
+    // overlay.style.left = (rect.left + window.scrollX) + 'px';
+    // overlay.style.width = rect.width + 'px';
+    // overlay.style.height = rect.height + 'px';
+    // overlay.style.backgroundColor = 'rgba(3, 252, 123, 0.3)';
+    // overlay.style.pointerEvents = 'none';
+    // overlay.style.zIndex = '9999';
+    // document.body.appendChild(overlay);
 
-    // Use absolute positioning instead of fixed, relative to the document
-    overlay.style.position = 'absolute';
-    overlay.style.top = (rect.top + window.scrollY) + 'px';
-    overlay.style.left = (rect.left + window.scrollX) + 'px';
-    overlay.style.width = rect.width + 'px';
-    overlay.style.height = rect.height + 'px';
-    overlay.style.backgroundColor = 'rgba(3, 252, 123, 0.3)';
-    overlay.style.pointerEvents = 'none';
-    overlay.style.zIndex = '9999';
-
-    document.body.appendChild(overlay);
     hoveredElement = element;
   }
 
@@ -324,11 +327,13 @@
 
     const element = event.target.closest('*');
     if (element === hoveredElement) {
-      // Remove overlay when mouse leaves the element
-      const existingOverlay = document.getElementById('element-overlay');
-      if (existingOverlay) {
-        existingOverlay.remove();
-      }
+
+      // // Remove overlay
+      // document.getElementById('element-overlay')?.remove();
+
+      // Remove outline
+      element.style.outline = '';
+
       hoveredElement = null;
     }
   }
@@ -340,10 +345,12 @@
     document.removeEventListener('mouseout', handleElementHoverOut);
     document.removeEventListener('keydown', handleEscapeKey); // Remove escape listener
 
-    // Remove overlay if it exists
-    const existingOverlay = document.getElementById('element-overlay');
-    if (existingOverlay) {
-      existingOverlay.remove();
+    // // Remove overlay if it exists
+    // document.getElementById('element-overlay')?.remove();
+
+    // Remove outline
+    if (hoveredElement) {
+      hoveredElement.style.outline = '';
     }
 
     // Reset hovered element
