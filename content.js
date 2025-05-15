@@ -60,9 +60,9 @@
     return false;
   }
 
-  function convertTableToMarkdown(tableElement) {
+  function convertTableToMarkdown(node) {
     let markdown = '\n';
-    const rows = Array.from(tableElement.querySelectorAll('tr'));
+    const rows = Array.from(node.querySelectorAll('tr'));
     if (rows.length === 0) return '';
 
     const headerCells = Array.from(rows[0].querySelectorAll('th, td')); // Allow td in header too
@@ -81,6 +81,34 @@
     }
 
     return markdown + '\n'; // Add newline after the table
+  }
+
+  function convertCodeBlockToMarkdown(node) {
+    // Disabling cloning because innerText of clonedNode loses visual styles like line-breaks
+    const clonedNode = node;
+    // const clonedNode = node.cloneNode(true);
+    
+    // Remove line number elements before getting text content
+    const lineNumberElements = clonedNode.querySelectorAll('[class*="line-number"]');
+    lineNumberElements.forEach(element => element.remove());
+
+    // depending on the dom structure, textContent sometimes captures line-breaks.
+    // If line-breaks are already captured by textContent, using innerText can add extra line-breaks
+    let codeContent = clonedNode.textContent;
+    if (!codeContent.includes('\n')) {
+      codeContent = clonedNode.innerText;
+    }
+
+    // Try to detect language from class names (e.g., class="language-javascript")
+    let language = '';
+    const langClass = Array.from(node.classList).find(cls =>
+      cls.startsWith('language-') || cls.startsWith('lang-')
+    );
+    if (langClass) {
+      language = langClass.replace('language-', '').replace('lang-', '');
+    }
+
+    return `\`\`\`${language}\n${codeContent}\n\`\`\`\n\n`;
   }
 
   function convertNodeToMarkdown(node) {
@@ -130,27 +158,11 @@
       case 'blockquote':
         return `> ${children}\n\n`;
       case 'code':
-        // Handle inline code
-        // If it's inside a PRE, the PRE handler will take precedence
+        // If it's inside a PRE, it's a code block
         if (node.closest('pre')) {
-          // Remove line number elements before getting text content
-          const clonedNode = node.cloneNode(true);
-          const lineNumberElements = clonedNode.querySelectorAll('[class*="line-number"]');
-          lineNumberElements.forEach(element => element.remove());
-
-          const codeContent = clonedNode.textContent || '';
-
-          // Try to detect language from class names (e.g., class="language-javascript")
-          let language = '';
-          const langClass = Array.from(node.classList).find(cls =>
-            cls.startsWith('language-') || cls.startsWith('lang-')
-          );
-          if (langClass) {
-            language = langClass.replace('language-', '').replace('lang-', '');
-          }
-
-          return `\`\`\`${language}\n${codeContent}\n\`\`\`\n\n`;
+          return convertCodeBlockToMarkdown(node);
         }
+        // inline code
         return `\`${children}\``;
       case 'hr':
         return `\n---\n\n`;
@@ -200,43 +212,36 @@
       hoveredElement.style.outline = '';
     }
 
-    console.log("Element clicked, scraping markdown...");
-    const content = convertNodeToMarkdown(element).trim();
-    const markdown = sanitizeFileContent(content);
-    console.log("Markdown generated length:", markdown.length);
-
+    console.log("Element clicked, converting to markdown...", element);
+    let markdown = '';
+    try {
+      const content = convertNodeToMarkdown(element).trim();
+      markdown = sanitizeFileContent(content);
+    }
+    catch (error) {
+      console.error(error);
+    }
     deactivateSelection();
+
+    if (markdown.length === 0) {
+      showToast('No content found in selected element.', 1500);
+      return;
+    }
 
     // Check if we're in single capture mode
     try {
       const { isSingleCapture } = await chrome.storage.local.get('isSingleCapture');
 
       if (isSingleCapture) {
-        // Single capture mode - copy directly to clipboard
-        if (markdown) {
-          await navigator.clipboard.writeText(markdown);
-          showToast('Content copied to clipboard!', 1500);
-          // Reset the single capture mode flag
-          await chrome.storage.local.set({ isSingleCapture: false });
-        } else {
-          showToast('No content found in selected element.', 1500);
-        }
+        await navigator.clipboard.writeText(markdown);
+        showToast('Content copied to clipboard!', 1500);
+        await chrome.storage.local.set({ isSingleCapture: false });
       } else {
-        // Regular collection mode - append to storage
-        if (markdown) {
-          await appendToStorage(markdown);
-        } else {
-          showToast('No content found in selected element.', 1500);
-        }
+        await appendToStorage(markdown);
+        showToast('Content added to collection', 1000);
       }
     } catch (error) {
       console.error("Error handling element click:", error);
-      // Fall back to regular collection mode
-      if (markdown) {
-        await appendToStorage(markdown);
-      } else {
-        showToast('No content found in selected element.', 1500);
-      }
     }
   }
 
@@ -247,7 +252,6 @@
       const separator = `\n\n----- Content from ${window.location.href} -----\n\n`;
       const updatedContent = currentContent + separator + newText;
       await chrome.storage.local.set({ collectedContent: updatedContent });
-      showToast('Content added to collection', 1000);
     } catch (error) {
       showToast('Failed to add content.', 1500);
     }
