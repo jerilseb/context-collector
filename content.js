@@ -175,7 +175,10 @@
       case 'ol':
         return `${children}`;
       case 'li':
-        return `- ${children}\n`;
+        if (children) {
+          return `- ${children}\n`;
+        }
+        return '';
       case 'blockquote':
         return `> ${node.textContent}\n\n`;
       case 'code':
