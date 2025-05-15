@@ -99,6 +99,10 @@
       codeContent = clonedNode.innerText;
     }
 
+    if (!codeContent.endsWith('\n')) {
+      codeContent += '\n';
+    }
+
     // Try to detect language from class names (e.g., class="language-javascript")
     let language = '';
     const langClass = Array.from(node.classList).find(cls =>
@@ -108,7 +112,7 @@
       language = langClass.replace('language-', '').replace('lang-', '');
     }
 
-    return `\`\`\`${language}\n${codeContent}\n\`\`\`\n\n`;
+    return `\`\`\`${language}\n${codeContent}\`\`\`\n\n`;
   }
 
   function convertNodeToMarkdown(node) {
