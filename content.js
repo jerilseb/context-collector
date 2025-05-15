@@ -26,6 +26,7 @@
     toast.textContent = message;
 
     toast.style.position = 'fixed';
+    toast.style.fontSize = '14px';
     toast.style.bottom = '20px';
     toast.style.left = '50%';
     toast.style.transform = 'translateX(-50%)';
