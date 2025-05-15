@@ -190,7 +190,7 @@
         if (node.querySelector('code') !== null) {
           return children;
         }
-        return `\n${node.textContent}`;
+        return `\n${node.textContent}\n`;
       default:
         return children;
     }
