@@ -200,14 +200,6 @@
           return children;
         }
         return `${children}\n`;
-      case 'span':
-      case 'section':
-      case 'article':
-      case 'aside':
-      case 'header':
-      case 'footer':
-      case 'nav':
-        return children;
       default:
         return children;
     }
