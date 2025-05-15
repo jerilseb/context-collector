@@ -2,6 +2,9 @@
   let hoveredElement = null;
   let isSelectionActive = true;
 
+  const ELEMENT_NODE = 1;
+  const TEXT_NODE = 3;
+
   const ignoredClasses = ['ad', 'ads', 'advertisement'];
   const ignoredAttributes = [];
   const ignoredTags = [
@@ -157,7 +160,10 @@
       case 'em':
         return `*${children}*`;
       case 'a':
-        return `${children}`;
+        if (node.nextSibling?.nodeType === TEXT_NODE || node.previousSibling?.nodeType === TEXT_NODE) {
+          return node.textContent;
+        }
+        return '';
       case 'img':
         return `\n`;
       case 'ul':
