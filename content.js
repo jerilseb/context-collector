@@ -139,17 +139,17 @@
 
     switch (tagName) {
       case 'h1':
-        return `\n# ${node.textContent}\n\n`;
+        return `\n# ${node.textContent.trim()}\n\n`;
       case 'h2':
-        return `\n## ${node.textContent}\n\n`;
+        return `\n## ${node.textContent.trim()}\n\n`;
       case 'h3':
-        return `\n### ${node.textContent}\n\n`;
+        return `\n### ${node.textContent.trim()}\n\n`;
       case 'h4':
-        return `\n#### ${node.textContent}\n\n`;
+        return `\n#### ${node.textContent.trim()}\n\n`;
       case 'h5':
-        return `\n##### ${node.textContent}\n\n`;
+        return `\n##### ${node.textContent.trim()}\n\n`;
       case 'h6':
-        return `\n###### ${node.textContent}\n\n`;
+        return `\n###### ${node.textContent.trim()}\n\n`;
       case 'p':
         return `\n${children}\n\n`;
       case 'b':
