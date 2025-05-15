@@ -290,7 +290,7 @@
     if (hoveredElement) {
       hoveredElement.style.outline = '';
     }
-    element.style.outline = '2px solid red';
+    element.style.outline = '4px solid red';
 
     // // Create and position overlay for the currently hovered element
     // // Remove overlay from previously hovered element
