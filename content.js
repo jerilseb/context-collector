@@ -12,14 +12,6 @@
     'input',
     'label'
   ];
-  const lineNumberClassPatterns = [
-    "line-number",
-    "ace_gutter"
-  ]
-
-  const lineNumberQuerySelector = lineNumberClassPatterns
-    .map(className => `[class*="${className}"]`)
-    .join(', ');
 
   function showToast(message, duration = 1000) {
     const toast = document.createElement('div');
@@ -99,14 +91,52 @@
     return markdown + '\n'; // Add newline after the table
   }
 
+  function findLineNumberContainer(codeEl) {
+    /** Utility: does this element contain *only* whitespace-separated integers? */
+    const digitsOnly = el => {
+      // Drop leading / trailing space and collapse internal whitespace
+      const tokens = el.textContent.trim().split(/\s+/);
+      if (!tokens.length) return false;
+      return tokens.every(tok => /^\d+$/.test(tok));
+    };
+
+    /* — 1) Fast path: look at direct children of <code> — */
+    for (const child of codeEl.children) {
+      if (digitsOnly(child)) return child;
+    }
+
+    /* — 2) General path: walk the subtree, stopping at the first numeric text-node — */
+    const walker = document.createTreeWalker(
+      codeEl,
+      NodeFilter.SHOW_TEXT,
+      {
+        acceptNode: node => /^\d+$/.test(node.nodeValue.trim())
+          ? NodeFilter.FILTER_ACCEPT
+          : NodeFilter.FILTER_REJECT
+      }
+    );
+
+    const firstNumeric = walker.nextNode();
+    if (!firstNumeric) return null;         // no line-numbers at all
+
+    // Climb up until: (a) parent is <code>  OR  (b) element’s children are all digits
+    let el = firstNumeric.parentNode;
+    while (el && el !== codeEl && !digitsOnly(el)) {
+      el = el.parentNode;
+    }
+    return el === codeEl ? firstNumeric.parentNode : el;
+  }
+
   function convertCodeBlockToMarkdown(node) {
     // Disabling cloning because innerText of clonedNode loses visual styles like line-breaks
     const clonedNode = node;
     // const clonedNode = node.cloneNode(true);
 
     // Remove line number elements before getting text content
-    const lineNumberElements = clonedNode.querySelectorAll(lineNumberQuerySelector);
-    lineNumberElements.forEach(element => element.remove());
+    const lineNumberContainer = findLineNumberContainer(node);
+    if (lineNumberContainer) {
+      lineNumberContainer.remove();
+    }
 
     // depending on the dom structure, textContent can miss line-breaks.
     // We prefer textContent, but fallback to innerText
