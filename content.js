@@ -216,8 +216,9 @@
         // inline code
         return ` \`${children}\` `;
       case 'pre':
-        // Huggingface docs don't have a code within pre
-        if (Array.from(node.parentNode.classList).some(cls => cls.includes('code'))) {
+        // Some pages like Huggingface docs don't have a code within pre
+        const classes = [...node.classList, ...node.parentNode.classList];
+        if (classes.some(cls => cls.includes('code'))) {
           return convertCodeBlockToMarkdown(node);
         }
         // Most pre have a code inside them, defer to the code node
