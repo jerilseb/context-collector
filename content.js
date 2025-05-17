@@ -216,14 +216,14 @@
         // inline code
         return ` \`${children}\` `;
       case 'pre':
+        // Most pre have a code inside them, defer to the code node
+        if (node.querySelector('code') !== null) {
+          return children;
+        }
         // Some pages like Huggingface docs don't have a code within pre
         const classes = [...node.classList, ...node.parentNode.classList];
         if (classes.some(cls => cls.includes('code'))) {
           return convertCodeBlockToMarkdown(node);
-        }
-        // Most pre have a code inside them, defer to the code node
-        if (node.querySelector('code') !== null) {
-          return children;
         }
         // Else just get the textContent, (do we innerText?)
         return `\n${node.textContent}\n`;
