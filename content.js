@@ -6,11 +6,12 @@
   const ignoredAttributes = [];
   const ignoredTags = [
     'script',
+    'noscript',
     'style',
     'svg',
     'button',
     'input',
-    'label'
+    'label',
   ];
 
   function showToast(message, duration = 1000) {
