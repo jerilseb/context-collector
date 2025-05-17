@@ -168,7 +168,7 @@
     }
 
     const tagName = node.tagName.toLowerCase();
-    const children = Array.from(node.childNodes).map(convertNodeToMarkdown).join('');
+    const children = Array.from(node.childNodes).map(convertNodeToMarkdown).join('').trim();
 
     switch (tagName) {
       case 'h1':
@@ -214,7 +214,7 @@
           return convertCodeBlockToMarkdown(node);
         }
         // inline code
-        return `\`${children}\``;
+        return ` \`${children}\` `;
       case 'pre':
         // Huggingface docs don't have a code within pre
         if (Array.from(node.parentNode.classList).some(cls => cls.includes('code'))) {
