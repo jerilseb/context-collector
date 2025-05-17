@@ -168,7 +168,7 @@
     }
 
     const tagName = node.tagName.toLowerCase();
-    const children = Array.from(node.childNodes).map(convertNodeToMarkdown).join('').trim();
+    const children = Array.from(node.childNodes).map(convertNodeToMarkdown).join('');
 
     switch (tagName) {
       case 'h1':
@@ -202,8 +202,8 @@
       case 'ol':
         return `${children}`;
       case 'li':
-        if (children) {
-          return `- ${children}\n`;
+        if (children.trim()) {
+          return `- ${children.trim()}\n`;
         }
         return '';
       case 'blockquote':
