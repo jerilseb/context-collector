@@ -1,0 +1,139 @@
+/* Default Light Theme */
+:root {
+  --popup-bg: #f8f9fa;
+  --popup-text: #212529;
+  --popup-border: #dee2e6;
+  --popup-header-text: #212529;
+  --popup-button-bg: #007bff;
+  --popup-button-hover: #0069d9;
+  --popup-button-text: #ffffff;
+  --popup-stop-button-bg: #dc3545;
+  --popup-stop-button-hover: #c82333;
+  --popup-status-text: #198754;
+  --popup-gear-icon: #0d6efd;
+  --popup-gear-icon-hover: #0b5ed7;
+  --popup-shadow: rgba(0, 0, 0, 0.15);
+}
+
+/* Dark Theme - Applied when user prefers dark mode */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --popup-bg: #23272b;
+    --popup-text: #e9ecef;
+    --popup-border: #343a40;
+    --popup-header-text: #f8f9fa;
+    --popup-status-text: #20c997;
+    --popup-gear-icon: #6ea8fe;
+    --popup-gear-icon-hover: #9ec5fe;
+    --popup-shadow: rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* Base Styles */
+body {
+  width: 280px;
+  padding: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  margin: 0;
+  background-color: var(--popup-bg);
+  color: var(--popup-text);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--popup-border);
+}
+
+h1 {
+  font-size: 16px;
+  margin: 0;
+  color: var(--popup-header-text);
+  font-weight: 500;
+}
+
+.content {
+  padding: 20px;
+}
+
+.gear-icon {
+  color: var(--popup-gear-icon);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gear-icon:hover {
+  color: var(--popup-gear-icon-hover);
+}
+
+.gear-icon svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+button {
+  width: 100%;
+  padding: 12px 15px;
+  margin-top: 18px;
+  cursor: pointer;
+  background-color: var(--popup-button-bg);
+  color: var(--popup-button-text);
+  border: none;
+  border-radius: 2px;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 3px 6px var(--popup-shadow), 0 1px 2px rgba(0, 0, 0, 0.22);
+  position: relative;
+  top: 0;
+  transition: background-color 0.2s, box-shadow 0.2s, top 0.2s;
+}
+
+button:hover {
+  background-color: var(--popup-button-hover);
+  box-shadow: 0 4px 8px var(--popup-shadow), 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+button:active {
+  top: 1px;
+  box-shadow: 0 1px 3px var(--popup-shadow);
+}
+
+button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.4), 0 3px 6px var(--popup-shadow);
+}
+
+button:disabled {
+  background-color: #495057;
+  color: #adb5bd;
+  cursor: not-allowed;
+  box-shadow: none;
+  opacity: 0.7;
+}
+
+#stopCollecting {
+  background-color: var(--popup-stop-button-bg);
+  display: none; /* Hide by default, will be shown via JS when needed */
+}
+
+#stopCollecting:hover {
+  background-color: var(--popup-stop-button-hover);
+}
+
+#stopCollecting:focus {
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.4), 0 3px 6px var(--popup-shadow);
+}
+
+.status-message {
+  text-align: center;
+  margin-top: 18px;
+  font-size: 13px;
+  color: var(--popup-status-text);
+  min-height: 1.2em;
+}
