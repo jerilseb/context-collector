@@ -58,55 +58,27 @@ h2 {
     color: var(--text-primary);
 }
 
-.hotkey-container {
+.shortcut-instructions {
     margin-bottom: 1rem;
 }
 
-label {
-    display: block;
+.shortcut-instructions ol {
+    margin-left: 1.5rem;
+    margin-top: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.shortcut-instructions li {
     margin-bottom: 0.5rem;
-    color: var(--text-secondary);
-}
-
-.hotkey-input {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-}
-
-input[type="text"] {
-    flex: 1;
-    padding: 0.75rem;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    background-color: var(--bg-primary);
     color: var(--text-primary);
-    font-size: 1rem;
 }
 
-input[type="text"]:focus {
-    outline: none;
-    border-color: var(--accent-color);
+.shortcut-instructions strong {
+    color: var(--accent-color);
+    user-select: all;
 }
 
-button {
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: background-color 0.2s;
-}
-
-.secondary-button {
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
-    border: 1px solid var(--border-color);
-}
-
-.secondary-button:hover {
-    background-color: var(--border-color);
-}
+/* No replacement - removing unused styles */
 
 .help-text {
     color: var(--text-secondary);

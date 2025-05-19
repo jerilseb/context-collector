@@ -12,7 +12,7 @@ Tired of messy copy-pasting? Need to grab multiple sections from different pages
 ## How it Works
 
 1.  **Start Collecting:** Click the extension icon and press "Start Collecting". This activates the collection mode.
-2.  **Activate Selection:** Navigate to a webpage and press the hotkey (`Ctrl+Shift+X` by default, or `Cmd+Shift+X` on Mac).
+2.  **Activate Selection:** Navigate to a webpage and press the hotkey (`Alt+Z` by default).
 3.  **Select Content:** Hover your mouse over the page – selectable content blocks will get a red outline. Click the block you want to add. A confirmation toast will appear.
 4.  **Collect More:** Repeat steps 2 & 3 on the same or different pages to add more content to your collection. Each snippet includes its source URL.
 5.  **Finish & Copy:** When done, click the extension icon again and press "Stop Collecting & Copy". All collected content (formatted as Markdown) is copied to your clipboard.
@@ -27,7 +27,7 @@ Press `Esc` anytime during the selection process (step 3) to cancel selecting fr
 *   **Source Tracking:** Automatically adds the source URL for each collected snippet.
 *   **Simple Controls:** Easy start/stop via the popup and hotkey activation.
 *   **Clipboard Ready:** Copies the final compiled Markdown with one click.
-*   **Configurable Hotkey:** Set your preferred activation hotkey via the Options page (Note: this currently sets a *separate* hotkey in storage, the primary activation uses the manifest command).
+*   **Configurable Hotkey:** Change the keyboard shortcut via Chrome's extension shortcuts page (chrome://extensions/shortcuts).
 
 ## Installation (Development/Testing)
 
