@@ -2,9 +2,10 @@ const singleCaptureButton = document.getElementById('singleCapture');
 const startButton = document.getElementById('startCollecting');
 const stopButton = document.getElementById('stopCollecting');
 const optionsButton = document.getElementById('openOptions');
+const contentDiv = document.querySelector('.content');
 const statusDiv = document.createElement('div');
 statusDiv.className = 'status-message';
-document.body.appendChild(statusDiv);
+contentDiv.appendChild(statusDiv);
 
 function isRestrictedPage(tab) {
     if (!tab?.url) {
