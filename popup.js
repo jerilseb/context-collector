@@ -35,6 +35,7 @@ async function startCollecting() {
         if (isRestrictedPage(currentTab)) {
             statusDiv.textContent = 'Cannot start collecting on this page.';
             startButton.disabled = true;
+            singleCaptureButton.disabled = true; // Also disable single capture button
             return;
         }
 
@@ -61,6 +62,7 @@ async function singleCapture() {
         if (isRestrictedPage(currentTab)) {
             statusDiv.textContent = 'Cannot capture on this page.';
             singleCaptureButton.disabled = true;
+            startButton.disabled = true; // Also disable start collecting button
             return;
         }
 
@@ -119,6 +121,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (isRestrictedPage(currentTab)) {
             statusDiv.textContent = 'Cannot run on this page.';
             startButton.disabled = true;
+            singleCaptureButton.disabled = true; // Also disable single capture button
             stopButton.style.display = 'none'; // Ensure stop is hidden too
         }
 
