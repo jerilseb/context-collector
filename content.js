@@ -12,6 +12,7 @@
     'button',
     'input',
     'label',
+    'nav',
   ];
 
   function showToast(message, duration = 1000) {
@@ -67,6 +68,17 @@
     }
 
     return false;
+  }
+
+  // depending on the dom structure, textContent can miss line-breaks.
+  // We prefer textContent, but fallback to innerText
+  function getFormattedText(node) {
+    let codeContent = node.textContent;
+    const newLineIndex = codeContent.indexOf('\n');
+    if (newLineIndex === -1 || newLineIndex > 100) {
+      codeContent = node.innerText;
+    }
+    return codeContent.trim();
   }
 
   function convertTableToMarkdown(node) {
@@ -139,14 +151,6 @@
       lineNumberContainer.remove();
     }
 
-    // depending on the dom structure, textContent can miss line-breaks.
-    // We prefer textContent, but fallback to innerText
-    let codeContent = clonedNode.textContent;
-    const newLineIndex = codeContent.indexOf('\n');
-    if (newLineIndex === -1 || newLineIndex > 100) {
-      codeContent = clonedNode.innerText;
-    }
-
     // Try to detect language from class names (e.g., class="language-javascript")
     let language = '';
     const langClass = Array.from(node.classList).find(cls =>
@@ -156,7 +160,8 @@
       language = langClass.replace('language-', '').replace('lang-', '');
     }
 
-    return `\`\`\`${language}\n${codeContent.trim()}\n\`\`\`\n\n`;
+    const codeContent = getFormattedText(clonedNode);  
+    return `\`\`\`${language}\n${codeContent}\n\`\`\`\n\n`;
   }
 
   function convertNodeToMarkdown(node) {
@@ -226,8 +231,7 @@
         if (classes.some(cls => cls.includes('code'))) {
           return convertCodeBlockToMarkdown(node);
         }
-        // Else just get the textContent, (do we innerText?)
-        return `\n${node.textContent}\n`;
+        return `\n---\n${getFormattedText(node)}\n---\n`;
       case 'hr':
         return `\n---\n\n`;
       case 'br':
