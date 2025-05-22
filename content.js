@@ -3,7 +3,9 @@
   let isSelectionActive = true;
 
   const ignoredClasses = ['ad', 'ads', 'advertisement'];
-  const ignoredAttributes = [];
+  const ignoredAttributes = [
+    'role="navigation"'
+  ];
   const ignoredTags = [
     'script',
     'noscript',
@@ -57,8 +59,8 @@
       return true;
     }
 
-    // Ignore elements with specific attributes
-    if (ignoredAttributes.some(attr => node.hasAttribute(attr))) {
+    // Ignore elements with specific attributes and their values
+    if (ignoredAttributes.some(attr => node.matches(`[${attr}]`))) {
       return true;
     }
 
