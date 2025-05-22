@@ -3,15 +3,13 @@
   let isSelectionActive = true;
 
   const ignoredClasses = [
-    'ad',
-    'ads',
     'advertisement'
   ];
 
   const ignoredAttributes = [
     'role="navigation"'
   ];
-  
+
   const ignoredTags = [
     'script',
     'noscript',
