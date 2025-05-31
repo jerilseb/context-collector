@@ -134,8 +134,6 @@ async function processWithOpenAI(markdown, apiKey, model) {
         role: 'user',
         content: markdown
       }],
-      temperature: 0.3,
-      max_tokens: 4000
     })
   });
 
