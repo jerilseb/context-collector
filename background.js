@@ -28,25 +28,14 @@ function isRestrictedPage(tab) {
 
 chrome.runtime.onInstalled.addListener(async () => {
   try {
-    const { isCollecting, collectedContent, isSingleCapture, enableLLMProcessing } = await chrome.storage.local.get([
-      'isCollecting',
-      'collectedContent',
-      'isSingleCapture',
-      'enableLLMProcessing'
-    ]);
-
-    if (!isCollecting) {
-      await chrome.storage.local.set({ isCollecting: false });
-    }
-    if (!collectedContent) {
-      await chrome.storage.local.set({ collectedContent: '' });
-    }
-    if (isSingleCapture === undefined) {
-      await chrome.storage.local.set({ isSingleCapture: false });
-    }
-    if (enableLLMProcessing === undefined) {
-      await chrome.storage.local.set({ enableLLMProcessing: false });
-    }
+    await chrome.storage.local.set({
+      isCollecting: false,
+      collectedContent: '',
+      isSingleCapture: false,
+      itemsRemaining: 0,
+      enableLLMProcessing: false,
+      isProcessing: false
+    });
   } catch (error) {
     console.error('Error initializing storage:', error);
   }
@@ -80,6 +69,8 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     try {
       const { markdown } = message;
       contentQueue.push(markdown);
+      const { itemsRemaining } = await chrome.storage.local.get(['itemsRemaining']);
+      await chrome.storage.local.set({ itemsRemaining: itemsRemaining + 1 });
       processContentQueue(); // Trigger queue processing
     } catch (error) {
       console.error("Error handling collected content message:", error);
@@ -103,6 +94,7 @@ async function processContentQueue() {
   ]);
 
   while (contentQueue.length > 0) {
+    await chrome.storage.local.set({ itemsRemaining: contentQueue.length });
     const batchToProcess = contentQueue.splice(0, MAX_PARALLEL_REQUESTS);
     console.log(`Processing a batch of ${batchToProcess.length} items.`);
 
@@ -127,7 +119,7 @@ async function processContentQueue() {
     }
   }
 
-  await chrome.storage.local.set({ isProcessing: false });
+  await chrome.storage.local.set({ isProcessing: false, itemsRemaining: 0 });
   isQueueManagerActive = false;
   console.log("All items processed. Queue manager stopped. isProcessing set to false.");
 }

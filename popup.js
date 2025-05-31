@@ -78,7 +78,7 @@ optionsBtn.addEventListener('click', () => chrome.runtime.openOptionsPage());
 
 // Initialize on load
 document.addEventListener('DOMContentLoaded', async () => {
-    const { isCollecting, isProcessing } = await chrome.storage.local.get(['isCollecting', 'isProcessing']);
+    const { isCollecting, isProcessing, itemsRemaining } = await chrome.storage.local.get(['isCollecting', 'isProcessing', 'itemsRemaining']);
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     
     if (isRestrictedPage(tab)) {
@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateUI(isCollecting ?? false, isProcessing ?? false);
     
     if (isProcessing) {
-        updateStatus('Processing with AI...');
+        updateStatus(`Processing items (${itemsRemaining} remaining)`);
         
         // Listen for processing state changes only when processing is active
         chrome.storage.onChanged.addListener(async (changes) => {
@@ -99,10 +99,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 updateUI(isCollecting ?? false, changes.isProcessing.newValue ?? false);
                 
                 if (changes.isProcessing.newValue) {
-                    updateStatus('Processing with AI...');
+                    updateStatus('Processing items');
                 } else {
                     updateStatus();
                 }
+            }
+            else if (changes.itemsRemaining.newValue) {
+                updateStatus(`Processing items (${changes.itemsRemaining.newValue} remaining)`);
             }
         });
     }
