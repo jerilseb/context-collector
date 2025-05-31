@@ -1,6 +1,6 @@
 function isRestrictedPage(tab) {
   if (!tab?.url) {
-      return false;
+    return false;
   }
   const restrictedProtocols = ['chrome://', 'edge://', 'brave://', 'chrome-extension://'];
   return restrictedProtocols.some(protocol => tab.url.startsWith(protocol));
@@ -9,11 +9,11 @@ function isRestrictedPage(tab) {
 chrome.runtime.onInstalled.addListener(async () => {
   try {
     const { isCollecting, collectedContent, isSingleCapture } = await chrome.storage.local.get([
-      'isCollecting', 
+      'isCollecting',
       'collectedContent',
       'isSingleCapture'
     ]);
-    
+
     if (!isCollecting) {
       await chrome.storage.local.set({ isCollecting: false });
     }
@@ -50,3 +50,29 @@ chrome.commands.onCommand.addListener(async (command, tab) => {
     }
   }
 });
+
+chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
+  if (message.type === 'COLLECTED_CONTENT') {
+    try {
+      const { markdown } = message;
+      await appendToStorage(markdown);
+    } catch (error) {
+      console.error("Error handling collected content:", error);
+    }
+  }
+});
+
+async function appendToStorage(newText) {
+  try {
+    const { collectedContent } = await chrome.storage.local.get('collectedContent');
+    let currentContent = collectedContent || '';
+    let separator = '';
+    if (currentContent) {
+      separator = `\n\n-----------------\n\n`;
+    }
+    const updatedContent = currentContent + separator + newText;
+    await chrome.storage.local.set({ collectedContent: updatedContent });
+  } catch (error) {
+    console.error('Failed to add content to storage:', error);
+  }
+}

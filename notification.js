@@ -13,16 +13,11 @@
         toast.style.padding = '15px 30px';
         toast.style.borderRadius = '5px';
         toast.style.zIndex = '9999';
-        toast.style.opacity = '1';
-        toast.style.transition = 'opacity 0.5s ease-out';
 
         document.body.appendChild(toast);
 
         setTimeout(() => {
-            toast.style.opacity = '0';
-            setTimeout(() => {
-                toast.remove();
-            }, 500);
+            toast.remove();
         }, duration);
     }
 
