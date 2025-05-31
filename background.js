@@ -1,7 +1,22 @@
 const PROMPT = "You are a helpful assistant that cleans and improves markdown contet that is scraped from web pages.  Clean up any formatting issues, fix broken markdown syntax, remove non-meaning full content, and improve readability while preserving all the original information and meaning. Return only the cleaned markdown without any additional commentary"
+const MAX_PARALLEL_REQUESTS = 5;
 
 let contentQueue = [];
-let isInternalProcessing = false;
+let isQueueManagerActive = false;
+
+// Helper function to process a single markdown item
+async function handleSingleItemProcessing(markdown, enableLLMProcessing, openaiApiKey, model) {
+  let finalContent = markdown;
+  if (enableLLMProcessing && openaiApiKey && markdown.trim()) {
+    console.log("Processing item with OpenAI...");
+    try {
+      finalContent = await processWithOpenAI(markdown, openaiApiKey, model || 'gpt-4o-mini');
+    } catch (error) {
+      console.error('OpenAI processing failed, using original content:', error);
+    }
+  }
+  return finalContent;
+}
 
 function isRestrictedPage(tab) {
   if (!tab?.url) {
@@ -73,13 +88,13 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
 });
 
 async function processContentQueue() {
-  if (isInternalProcessing || contentQueue.length === 0) {
+  if (isQueueManagerActive || contentQueue.length === 0) {
     return;
   }
 
-  isInternalProcessing = true;
+  isQueueManagerActive = true;
   await chrome.storage.local.set({ isProcessing: true });
-  console.log(`Starting to process a batch of ${contentQueue.length} items.`);
+  console.log(`Queue manager started. Initial queue size: ${contentQueue.length}`);
 
   const { enableLLMProcessing, openaiApiKey, openaiModel } = await chrome.storage.local.get([
     'enableLLMProcessing',
@@ -88,30 +103,33 @@ async function processContentQueue() {
   ]);
 
   while (contentQueue.length > 0) {
-    const markdown = contentQueue.shift(); // Get the oldest item
-    try {
-      let finalContent = markdown;
+    const batchToProcess = contentQueue.splice(0, MAX_PARALLEL_REQUESTS);
+    console.log(`Processing a batch of ${batchToProcess.length} items.`);
 
-      if (enableLLMProcessing && openaiApiKey) {
-        console.log("Processing item with OpenAI...");
-        try {
-          finalContent = await processWithOpenAI(markdown, openaiApiKey, openaiModel || 'gpt-4o-mini');
-        } catch (error) {
-          console.error('OpenAI processing failed, using original content:', error);
-        }
+    const processingPromises = batchToProcess.map(markdown =>
+      handleSingleItemProcessing(markdown, enableLLMProcessing, openaiApiKey, openaiModel)
+    );
+
+    try {
+      const processedContents = await Promise.all(processingPromises);
+      console.log(`Batch of ${processedContents.length} items processed by LLM (if enabled).`);
+
+      for (const finalContent of processedContents) {
+        await appendToStorage(finalContent);
       }
-      await appendToStorage(finalContent);
-      console.log("Item processed and appended to storage.");
+      console.log(`Batch of ${processedContents.length} items appended to storage in order.`);
     } catch (error) {
-      console.error("Error processing an item from the queue:", error);
-      // Continue to the next item even if one fails
+      // This catch is for errors from Promise.all itself, though handleSingleItemProcessing should catch its own errors.
+      console.error("Error processing a batch with Promise.all:", error);
+      // Decide on error handling: e.g., retry, skip batch, or halt.
+      // For now, we'll log and continue to the next batch if possible,
+      // but individual item errors are handled within handleSingleItemProcessing.
     }
   }
 
   await chrome.storage.local.set({ isProcessing: false });
-  isInternalProcessing = false;
-  console.log("Batch processing complete. isProcessing set to false.");
-
+  isQueueManagerActive = false;
+  console.log("All items processed. Queue manager stopped. isProcessing set to false.");
 }
 
 async function processWithOpenAI(markdown, apiKey, model) {
