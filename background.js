@@ -67,7 +67,7 @@ chrome.commands.onCommand.addListener(async (command, tab) => {
   if (command === "collect-content") {
     try {
       if (isRestrictedPage(tab)) {
-        console.log("Cannot collect content on this page.");
+        console.log("Cannot collect content on this page");
         return;
       }
       const { isCollecting } = await chrome.storage.local.get('isCollecting');
@@ -76,9 +76,9 @@ chrome.commands.onCommand.addListener(async (command, tab) => {
           target: { tabId: tab.id },
           files: ['content.js']
         });
-        console.log("Content script injected successfully.");
+        console.log("Content script injected successfully");
       } else {
-        console.log("Collecting is not active. Hotkey press ignored.");
+        console.log("Collecting is not active. Hotkey press ignored");
       }
     } catch (error) {
       console.error("Error handling command:", error);
@@ -118,7 +118,7 @@ async function processContentQueue() {
   while (contentQueue.length > 0) {
     await chrome.storage.local.set({ itemsRemaining: contentQueue.length });
     const batchToProcess = contentQueue.splice(0, MAX_PARALLEL_REQUESTS);
-    console.log(`Processing a batch of ${batchToProcess.length} items.`);
+    console.log(`Processing a batch of ${batchToProcess.length} items`);
 
     const processingPromises = batchToProcess.map(markdown =>
       handleSingleItemProcessing(markdown, enableLLMProcessing, openaiApiKey, openaiModel)
@@ -126,12 +126,12 @@ async function processContentQueue() {
 
     try {
       const processedContents = await Promise.all(processingPromises);
-      console.log(`Batch of ${processedContents.length} items processed by LLM (if enabled).`);
+      console.log(`Batch of ${processedContents.length} items processed by AI`);
 
       for (const finalContent of processedContents) {
         await appendToStorage(finalContent);
       }
-      console.log(`Batch of ${processedContents.length} items appended to storage in order.`);
+      console.log(`Batch of ${processedContents.length} items appended to storage`);
     } catch (error) {
       // This catch is for errors from Promise.all itself, though handleSingleItemProcessing should catch its own errors.
       console.error("Error processing a batch with Promise.all:", error);
