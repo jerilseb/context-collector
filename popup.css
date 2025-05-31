@@ -94,7 +94,7 @@ button {
   transition: background-color 0.2s, box-shadow 0.2s, top 0.2s;
 }
 
-button:hover {
+button:hover:not(:disabled) {
   background-color: var(--popup-button-hover);
   box-shadow: 0 4px 8px var(--popup-shadow), 0 2px 4px rgba(0, 0, 0, 0.3);
 }
@@ -122,7 +122,7 @@ button:disabled {
   display: none; /* Hide by default, will be shown via JS when needed */
 }
 
-#stopCollecting:hover {
+#stopCollecting:hover:not(:disabled) {
   background-color: var(--popup-stop-button-hover);
 }
 

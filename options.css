@@ -106,6 +106,57 @@ h2 {
     color: var(--error-color);
 }
 
+label {
+    display: block;
+    margin-bottom: 1rem;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+input[type="checkbox"] {
+    margin-right: 0.5rem;
+    accent-color: var(--accent-color);
+}
+
+input[type="password"], select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+}
+
+input[type="password"]:focus, select:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.2);
+}
+
+#aiSettings {
+    margin: 1rem 0;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+button {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: #3a8ae6;
+}
+
 footer {
     margin-top: 2rem;
     text-align: center;

@@ -28,6 +28,31 @@
             </section>
 
             <section class="settings-card">
+                <h2>AI Processing</h2>
+                <label>
+                    <input type="checkbox" id="enableLLMProcessing">
+                    Process collected content using OpenAI
+                </label>
+                
+                <div id="aiSettings">
+                    <label>
+                        API Key:
+                        <input type="password" id="apiKey" placeholder="Enter your OpenAI API key">
+                    </label>
+                    
+                    <label>
+                        Model:
+                        <select id="modelSelect">
+                            <option value="gpt-4o-mini">GPT-4o Mini</option>
+                            <option value="gpt-4o">GPT-4o</option>
+                        </select>
+                    </label>
+                </div>
+                
+                <button id="saveSettings">Save Settings</button>
+            </section>
+
+            <section class="settings-card">
                 <h2>About</h2>
                 <p>Context Collector helps you quickly extract specific sections of a webpage and convert them into Markdown format.</p>
                 <p>Version: <span id="version"></span></p>
