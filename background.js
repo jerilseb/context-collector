@@ -4,6 +4,28 @@ const MAX_PARALLEL_REQUESTS = 5;
 let contentQueue = [];
 let isQueueManagerActive = false;
 
+async function fetchWithTimeout(url, options, timeoutMs) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+    return response;
+  } catch (error) {
+    clearTimeout(timeoutId);
+
+    if (error.name === 'AbortError') {
+      throw new Error(`Request timed out after ${timeoutMs}ms`);
+    }
+    throw error;
+  }
+}
+
 // Helper function to process a single markdown item
 async function handleSingleItemProcessing(markdown, enableLLMProcessing, openaiApiKey, model) {
   let finalContent = markdown;
@@ -129,7 +151,7 @@ async function processWithOpenAI(markdown, apiKey, model) {
     return markdown;
   }
 
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+  const response = await fetchWithTimeout('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -145,7 +167,7 @@ async function processWithOpenAI(markdown, apiKey, model) {
         content: markdown
       }],
     })
-  });
+  }, 10_000);
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
