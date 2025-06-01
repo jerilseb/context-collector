@@ -78,8 +78,6 @@ h2 {
     user-select: all;
 }
 
-/* No replacement - removing unused styles */
-
 .help-text {
     color: var(--text-secondary);
     font-size: 0.875rem;
@@ -89,17 +87,15 @@ h2 {
 .save-action-area {
     display: flex;
     align-items: center;
-    margin-top: 1rem; /* Add some space above the save button area */
+    margin-top: 1.5rem; /* Increased top margin */
 }
 
 .status-message {
-    /* text-align: center; */ /* No longer centered */
-    padding: 0.5rem 1rem; /* Adjusted padding */
-    /* margin-top: 1rem; */ /* Removed top margin */
-    margin-left: 1rem; /* Space to the right of the button */
+    padding: 0.5rem 1rem; 
+    margin-left: 1rem; 
     border-radius: 4px;
     display: none;
-    font-size: 0.875rem; /* Match button font size */
+    font-size: 0.875rem; 
 }
 
 .status-message.success {
@@ -116,18 +112,39 @@ h2 {
 
 label {
     display: block;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem; /* Reduced margin for tighter grouping */
     font-weight: 500;
     color: var(--text-primary);
 }
 
-input[type="checkbox"] {
-    margin-right: 0.5rem;
-    accent-color: var(--accent-color);
-    transform: scale(1.4) translateY(1px);
+/* Grouping for label and its control */
+.setting-group {
+    margin-bottom: 1rem;
 }
 
-input[type="password"], input[type="number"], select, textarea {
+.setting-group label { /* General label within setting-group */
+    margin-bottom: 0.25rem; 
+}
+
+/* Specific styling for checkbox label to align checkbox and text */
+label.checkbox-label {
+    display: flex; /* Use flexbox for alignment */
+    align-items: center; /* Vertically align items */
+    margin-bottom: 1rem; /* Keep consistent bottom margin for the group */
+}
+
+label.checkbox-label input[type="checkbox"] {
+    margin-right: 0.75rem; /* Space between checkbox and text */
+    accent-color: var(--accent-color);
+    transform: scale(1.4); /* Removed translateY for better alignment with flex */
+    /* Adjust vertical alignment if needed with flex properties on parent */
+}
+
+
+input[type="password"], 
+input[type="number"], 
+select, 
+textarea {
     width: 100%;
     padding: 0.75rem;
     border: 1px solid var(--border-color);
@@ -135,7 +152,7 @@ input[type="password"], input[type="number"], select, textarea {
     background-color: var(--bg-primary);
     color: var(--text-primary);
     font-size: 0.875rem;
-    margin-top: 0.5rem;
+    /* margin-top: 0.5rem; Removed direct top margin, handled by .setting-group or label */
 }
 
 textarea {
@@ -143,19 +160,58 @@ textarea {
     min-height: 80px;
 }
 
-input[type="password"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
+input[type="password"]:focus, 
+input[type="number"]:focus, 
+select:focus, 
+textarea:focus {
     outline: none;
     border-color: var(--accent-color);
     box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.2);
 }
 
-#aiSettings {
-    margin: 1rem 0;
+/* Styles for provider-specific and common settings containers */
+#aiProviderOptionsContainer { /* Container for all provider options */
+    margin-top: 1rem;
     padding-top: 1rem;
     border-top: 1px solid var(--border-color);
 }
 
-button#saveSettings { /* More specific selector if needed, but 'button' should be fine */
+#openaiProviderSettings,
+#geminiProviderSettings,
+#commonAiSettings {
+    /* These are now children of aiProviderOptionsContainer, 
+       so they don't need their own top border or excessive top margin if aiProviderOptionsContainer has it. 
+       Adjust if more spacing is desired between the provider dropdown and these sections. */
+    margin-top: 0.5rem; /* Slight space from provider dropdown if visible */
+    /* padding-top: 1rem; */ /* Can be removed if aiProviderOptionsContainer handles top padding/border */
+    /* border-top: 1px solid var(--border-color); */ /* Removed, handled by parent */
+}
+
+#openaiProviderSettings > label,
+#geminiProviderSettings > label,
+#commonAiSettings > label {
+    margin-bottom: 0.25rem; /* Tighter spacing for labels within these groups */
+}
+
+#openaiProviderSettings > input,
+#openaiProviderSettings > select,
+#geminiProviderSettings > input,
+#geminiProviderSettings > select,
+#commonAiSettings > input,
+#commonAiSettings > select,
+#commonAiSettings > textarea {
+    margin-bottom: 1rem; /* Space below each control in these groups */
+}
+
+
+/* Remove old #aiSettings style if it exists and is not used */
+/* #aiSettings {
+    margin: 1rem 0;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+} */
+
+button#saveSettings { 
     background-color: var(--accent-color);
     color: white;
     border: none;

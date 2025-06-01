@@ -28,14 +28,19 @@ async function fetchWithTimeout(url, options, timeoutMs) {
 }
 
 // Helper function to process a single markdown item
-async function handleSingleItemProcessing(markdown, enableLLMProcessing, openaiApiKey, model, fetchTimeout, systemPrompt) {
+async function handleSingleItemProcessing(markdown, aiProcessingEnabled, selectedAiProvider, openaiApiKey, openaiModel, geminiApiKey, geminiModel, fetchTimeout, systemPrompt) {
   let finalContent = markdown;
-  if (enableLLMProcessing && openaiApiKey && markdown.trim()) {
-    console.log("Processing item with OpenAI...");
+  if (aiProcessingEnabled && markdown.trim()) {
     try {
-      finalContent = await processWithOpenAI(markdown, openaiApiKey, model, fetchTimeout, systemPrompt);
+      if (selectedAiProvider === 'openai' && openaiApiKey) {
+        console.log("Processing item with OpenAI...");
+        finalContent = await processWithOpenAI(markdown, openaiApiKey, openaiModel, fetchTimeout, systemPrompt);
+      } else if (selectedAiProvider === 'gemini' && geminiApiKey) {
+        console.log("Processing item with Gemini...");
+        finalContent = await processWithGemini(markdown, geminiApiKey, geminiModel, fetchTimeout, systemPrompt);
+      }
     } catch (error) {
-      console.error('OpenAI processing failed, using original content:', error);
+      console.error(`AI processing failed for provider '${selectedAiProvider}', using original content:`, error);
     }
   }
   return finalContent;
@@ -56,7 +61,12 @@ chrome.runtime.onInstalled.addListener(async () => {
       collectedContent: '',
       isSingleCapture: false,
       itemsRemaining: 0,
-      enableLLMProcessing: false,
+      aiProcessingEnabled: false,
+      selectedAiProvider: 'openai',
+      openaiApiKey: '',
+      openaiModel: 'gpt-4o-mini',
+      geminiApiKey: '',
+      geminiModel: 'gemini-2.0-flash',
       isProcessing: false,
       fetchTimeout: DEFAULT_FETCH_TIMEOUT_SECS,
       systemPrompt: DEFAULT_SYSTEM_PROMPT,
@@ -114,30 +124,34 @@ async function processContentQueue() {
   console.log(`Queue manager started. Initial queue size: ${contentQueue.length}`);
 
   const {
-    enableLLMProcessing,
+    aiProcessingEnabled,
+    selectedAiProvider,
     openaiApiKey,
     openaiModel,
+    geminiApiKey,
+    geminiModel,
     fetchTimeout,
     systemPrompt,
     maxParallelRequests
   } = await chrome.storage.local.get([
-    'enableLLMProcessing',
+    'aiProcessingEnabled',
+    'selectedAiProvider',
     'openaiApiKey',
     'openaiModel',
+    'geminiApiKey',
+    'geminiModel',
     'fetchTimeout',
     'systemPrompt',
     'maxParallelRequests'
   ]);
 
-  const currentMaxParallelRequests = maxParallelRequests || DEFAULT_MAX_PARALLEL_REQUESTS;
-
   while (contentQueue.length > 0) {
     await chrome.storage.local.set({ itemsRemaining: contentQueue.length });
-    const batchToProcess = contentQueue.splice(0, currentMaxParallelRequests);
+    const batchToProcess = contentQueue.splice(0, maxParallelRequests);
     console.log(`Processing a batch of ${batchToProcess.length} items`);
 
     const processingPromises = batchToProcess.map(markdown =>
-      handleSingleItemProcessing(markdown, enableLLMProcessing, openaiApiKey, openaiModel, fetchTimeout, systemPrompt)
+      handleSingleItemProcessing(markdown, aiProcessingEnabled, selectedAiProvider, openaiApiKey, openaiModel, geminiApiKey, geminiModel, fetchTimeout, systemPrompt)
     );
 
     try {
@@ -150,7 +164,7 @@ async function processContentQueue() {
       console.log(`Batch of ${processedContents.length} items appended to storage`);
     } catch (error) {
       // This catch is for errors from Promise.all itself, though handleSingleItemProcessing should catch its own errors.
-      console.error("Error processing a batch with Promise.all:", error);
+      console.error("Error processing a batch:", error);
       // Decide on error handling: e.g., retry, skip batch, or halt.
       // For now, we'll log and continue to the next batch if possible,
       // but individual item errors are handled within handleSingleItemProcessing.
@@ -195,6 +209,45 @@ async function processWithOpenAI(markdown, apiKey, model, fetchTimeout, systemPr
 
   if (!processedContent) {
     throw new Error('No content received from OpenAI API');
+  }
+
+  return processedContent.trim();
+}
+
+async function processWithGemini(markdown, apiKey, model, fetchTimeout, systemPrompt) {
+  if (!apiKey || !markdown.trim()) {
+    return markdown;
+  }
+
+  const response = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      system_instruction: {
+        parts: [{
+          text: systemPrompt
+        }]
+      },
+      contents: [{
+        parts: [{
+          text: markdown
+        }]
+      }]
+    })
+  }, fetchTimeout * 1000);
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(`Gemini API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
+  }
+
+  const data = await response.json();
+  const processedContent = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+  if (!processedContent) {
+    throw new Error('No content received from Gemini API');
   }
 
   return processedContent.trim();

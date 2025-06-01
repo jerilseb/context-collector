@@ -29,40 +29,60 @@
 
             <section class="settings-card">
                 <h2>AI Processing</h2>
-                <label>
-                    <input type="checkbox" id="enableLLMProcessing">
-                    Process collected content using OpenAI
-                </label>
-                
-                <div id="aiSettings">
-                    <label>
-                        API Key:
-                        <input type="password" id="apiKey" placeholder="Enter your OpenAI API key">
+                <div class="setting-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="enableAiProcessingCheckbox">
+                        Enable AI Processing
                     </label>
-                    
-                    <label>
-                        Model:
-                        <select id="modelSelect">
+                </div>
+
+                <div id="aiProviderOptionsContainer" style="display: none;">
+                    <div class="setting-group">
+                        <label for="aiProviderSelect">AI Provider:</label>
+                        <select id="aiProviderSelect">
+                            <option value="openai">OpenAI</option>
+                            <option value="gemini">Google Gemini</option>
+                        </select>
+                    </div>
+
+                    <div id="openaiProviderSettings" style="display: none;">
+                        <label for="openaiApiKey">OpenAI API Key:</label>
+                        <input type="password" id="openaiApiKey" placeholder="Enter your OpenAI API key">
+                        
+                        <label for="openaiModelSelect">OpenAI Model:</label>
+                        <select id="openaiModelSelect">
                             <option value="gpt-4o-mini">GPT-4o Mini</option>
                             <option value="gpt-4o">GPT-4o</option>
                         </select>
-                    </label>
-  
-                    <label>
-                        Max Parallel AI Requests:
-                        <input type="number" id="maxParallelRequests" min="1" max="10" value="5">
-                    </label>
+                    </div>
 
-                    <label>
-                        Request Timeout (seconds):
-                        <input type="number" id="fetchTimeout" min="1" value="10">
-                    </label>
+                    <div id="geminiProviderSettings" style="display: none;">
+                        <label for="geminiApiKey">Google Gemini API Key:</label>
+                        <input type="password" id="geminiApiKey" placeholder="Enter your Google Gemini API key">
+                        
+                        <label for="geminiModelSelect">Gemini Model:</label>
+                        <select id="geminiModelSelect">
+                            <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                            <!-- Add other Gemini models here in the future -->
+                        </select>
+                    </div>
+                    
+                    <div id="commonAiSettings" style="display: none;">
+                        <label>
+                            Max Parallel AI Requests:
+                            <input type="number" id="maxParallelRequests" min="1" max="10">
+                        </label>
 
-                    <label>
-                        System Prompt:
-                        <textarea id="systemPrompt" rows="5" placeholder="Enter the system prompt for the AI..."></textarea>
-                    </label>
+                        <label>
+                            Request Timeout (seconds):
+                            <input type="number" id="fetchTimeout" min="1">
+                        </label>
 
+                        <label>
+                            System Prompt:
+                            <textarea id="systemPrompt" rows="5" placeholder="Enter the system prompt for the AI..."></textarea>
+                        </label>
+                    </div>
                 </div>
                 
                 <div class="save-action-area">
