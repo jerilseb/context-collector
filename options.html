@@ -47,9 +47,28 @@
                             <option value="gpt-4o">GPT-4o</option>
                         </select>
                     </label>
+  
+                    <label>
+                        Max Parallel AI Requests:
+                        <input type="number" id="maxParallelRequests" min="1" max="10" value="5">
+                    </label>
+
+                    <label>
+                        Request Timeout (seconds):
+                        <input type="number" id="fetchTimeout" min="1" value="10">
+                    </label>
+
+                    <label>
+                        System Prompt:
+                        <textarea id="systemPrompt" rows="5" placeholder="Enter the system prompt for the AI..."></textarea>
+                    </label>
+
                 </div>
                 
-                <button id="saveSettings">Save Settings</button>
+                <div class="save-action-area">
+                    <button id="saveSettings">Save Settings</button>
+                    <div id="status" class="status-message"></div>
+                </div>
             </section>
 
             <section class="settings-card">
@@ -60,9 +79,9 @@
         </main>
 
         <footer>
-            <div id="status" class="status-message"></div>
+            <!-- Status message moved -->
         </footer>
     </div>
     <script src="options.js"></script>
 </body>
-</html> 
+</html>

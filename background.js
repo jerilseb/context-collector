@@ -1,5 +1,6 @@
-const PROMPT = "You are a helpful assistant that cleans and improves markdown contet that is scraped from web pages.  Clean up any formatting issues, fix broken markdown syntax, remove non-meaning full content, and improve readability while preserving all the original information and meaning. Return only the cleaned markdown without any additional commentary"
-const MAX_PARALLEL_REQUESTS = 5;
+const DEFAULT_SYSTEM_PROMPT = "You are a helpful assistant that cleans and improves markdown contet that is scraped from web pages.  Clean up any formatting issues, fix broken markdown syntax, remove non-meaning full content, and improve readability while preserving all the original information and meaning. Return only the cleaned markdown without any additional commentary";
+const DEFAULT_FETCH_TIMEOUT_SECS = 30;
+const DEFAULT_MAX_PARALLEL_REQUESTS = 5;
 
 let contentQueue = [];
 let isQueueManagerActive = false;
@@ -27,12 +28,12 @@ async function fetchWithTimeout(url, options, timeoutMs) {
 }
 
 // Helper function to process a single markdown item
-async function handleSingleItemProcessing(markdown, enableLLMProcessing, openaiApiKey, model) {
+async function handleSingleItemProcessing(markdown, enableLLMProcessing, openaiApiKey, model, fetchTimeout, systemPrompt) {
   let finalContent = markdown;
   if (enableLLMProcessing && openaiApiKey && markdown.trim()) {
     console.log("Processing item with OpenAI...");
     try {
-      finalContent = await processWithOpenAI(markdown, openaiApiKey, model || 'gpt-4o-mini');
+      finalContent = await processWithOpenAI(markdown, openaiApiKey, model, fetchTimeout, systemPrompt);
     } catch (error) {
       console.error('OpenAI processing failed, using original content:', error);
     }
@@ -56,7 +57,10 @@ chrome.runtime.onInstalled.addListener(async () => {
       isSingleCapture: false,
       itemsRemaining: 0,
       enableLLMProcessing: false,
-      isProcessing: false
+      isProcessing: false,
+      fetchTimeout: DEFAULT_FETCH_TIMEOUT_SECS,
+      systemPrompt: DEFAULT_SYSTEM_PROMPT,
+      maxParallelRequests: DEFAULT_MAX_PARALLEL_REQUESTS
     });
   } catch (error) {
     console.error('Error initializing storage:', error);
@@ -109,19 +113,31 @@ async function processContentQueue() {
   await chrome.storage.local.set({ isProcessing: true });
   console.log(`Queue manager started. Initial queue size: ${contentQueue.length}`);
 
-  const { enableLLMProcessing, openaiApiKey, openaiModel } = await chrome.storage.local.get([
+  const {
+    enableLLMProcessing,
+    openaiApiKey,
+    openaiModel,
+    fetchTimeout,
+    systemPrompt,
+    maxParallelRequests
+  } = await chrome.storage.local.get([
     'enableLLMProcessing',
     'openaiApiKey',
-    'openaiModel'
+    'openaiModel',
+    'fetchTimeout',
+    'systemPrompt',
+    'maxParallelRequests'
   ]);
+
+  const currentMaxParallelRequests = maxParallelRequests || DEFAULT_MAX_PARALLEL_REQUESTS;
 
   while (contentQueue.length > 0) {
     await chrome.storage.local.set({ itemsRemaining: contentQueue.length });
-    const batchToProcess = contentQueue.splice(0, MAX_PARALLEL_REQUESTS);
+    const batchToProcess = contentQueue.splice(0, currentMaxParallelRequests);
     console.log(`Processing a batch of ${batchToProcess.length} items`);
 
     const processingPromises = batchToProcess.map(markdown =>
-      handleSingleItemProcessing(markdown, enableLLMProcessing, openaiApiKey, openaiModel)
+      handleSingleItemProcessing(markdown, enableLLMProcessing, openaiApiKey, openaiModel, fetchTimeout, systemPrompt)
     );
 
     try {
@@ -146,7 +162,7 @@ async function processContentQueue() {
   console.log("All items processed. Queue manager stopped. isProcessing set to false.");
 }
 
-async function processWithOpenAI(markdown, apiKey, model) {
+async function processWithOpenAI(markdown, apiKey, model, fetchTimeout, systemPrompt) {
   if (!apiKey || !markdown.trim()) {
     return markdown;
   }
@@ -161,13 +177,13 @@ async function processWithOpenAI(markdown, apiKey, model) {
       model: model,
       messages: [{
         role: 'system',
-        content: PROMPT
+        content: systemPrompt
       }, {
         role: 'user',
         content: markdown
       }],
     })
-  }, 10_000);
+  }, fetchTimeout * 1000);
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));

@@ -86,12 +86,20 @@ h2 {
     margin-top: 0.5rem;
 }
 
+.save-action-area {
+    display: flex;
+    align-items: center;
+    margin-top: 1rem; /* Add some space above the save button area */
+}
+
 .status-message {
-    text-align: center;
-    padding: 1rem;
-    margin-top: 1rem;
+    /* text-align: center; */ /* No longer centered */
+    padding: 0.5rem 1rem; /* Adjusted padding */
+    /* margin-top: 1rem; */ /* Removed top margin */
+    margin-left: 1rem; /* Space to the right of the button */
     border-radius: 4px;
     display: none;
+    font-size: 0.875rem; /* Match button font size */
 }
 
 .status-message.success {
@@ -116,9 +124,10 @@ label {
 input[type="checkbox"] {
     margin-right: 0.5rem;
     accent-color: var(--accent-color);
+    transform: scale(1.4) translateY(1px);
 }
 
-input[type="password"], select {
+input[type="password"], input[type="number"], select, textarea {
     width: 100%;
     padding: 0.75rem;
     border: 1px solid var(--border-color);
@@ -129,7 +138,12 @@ input[type="password"], select {
     margin-top: 0.5rem;
 }
 
-input[type="password"]:focus, select:focus {
+textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+input[type="password"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
     outline: none;
     border-color: var(--accent-color);
     box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.2);
@@ -141,7 +155,7 @@ input[type="password"]:focus, select:focus {
     border-top: 1px solid var(--border-color);
 }
 
-button {
+button#saveSettings { /* More specific selector if needed, but 'button' should be fine */
     background-color: var(--accent-color);
     color: white;
     border: none;
@@ -160,4 +174,4 @@ button:hover {
 footer {
     margin-top: 2rem;
     text-align: center;
-} 
+}
