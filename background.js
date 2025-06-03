@@ -1,6 +1,6 @@
 import { processWithOpenAI, processWithGemini, isRestrictedPage } from "./util.js";
 
-const DEFAULT_SYSTEM_PROMPT = "You are a helpful assistant that cleans and improves markdown contet that is scraped from web pages.  Clean up any formatting issues, fix broken markdown syntax, remove non-meaning full content, and improve readability while preserving all the original information and meaning. Return only the cleaned markdown without any additional commentary";
+const DEFAULT_SYSTEM_PROMPT = "You are a helpful assistant that cleans and improves markdown content that is scraped from web pages.  Clean up any formatting issues, fix broken markdown syntax, remove non-meaning full content, and improve readability while preserving all the original information and meaning. Return only the cleaned markdown without any additional commentary";
 const DEFAULT_FETCH_TIMEOUT_SECS = 30;
 const DEFAULT_MAX_PARALLEL_REQUESTS = 5;
 
