@@ -137,3 +137,25 @@ button:disabled {
   color: var(--popup-status-text);
   min-height: 1.2em;
 }
+
+.processing-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px; /* Space between spinner and text */
+}
+
+.spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--popup-status-text); /* Use status text color */
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -2,15 +2,25 @@ const singleBtn = document.getElementById('singleCapture');
 const startBtn = document.getElementById('startCollecting');
 const stopBtn = document.getElementById('stopCollecting');
 const optionsBtn = document.getElementById('openOptions');
-const status = document.getElementById('status');
+const textStatus = document.getElementById('text-status');
+const processingStatus = document.getElementById('processing-status');
+const processingMessageText = document.getElementById('processing-message-text');
 
 function isRestrictedPage(tab) {
     const restricted = ['chrome://', 'edge://', 'brave://', 'chrome-extension://'];
     return restricted.some(protocol => tab?.url?.startsWith(protocol));
 }
 
-function updateStatus(message = '') {
-    status.textContent = message;
+function updateStatus(message = '', showSpinner = false) {
+    if (showSpinner) {
+        processingMessageText.textContent = message;
+        textStatus.style.display = 'none';
+        processingStatus.style.display = 'flex';
+    } else {
+        textStatus.textContent = message;
+        textStatus.style.display = 'block';
+        processingStatus.style.display = 'none';
+    }
 }
 
 function updateUI(isCollecting, isProcessing) {
@@ -90,22 +100,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateUI(isCollecting ?? false, isProcessing ?? false);
     
     if (isProcessing) {
-        updateStatus(`Processing items (${itemsRemaining} remaining)`);
-        
+        updateStatus(`Processing items (${itemsRemaining} remaining)`, true);
+
         // Listen for processing state changes only when processing is active
         chrome.storage.onChanged.addListener(async (changes) => {
+            const { isCollecting: currentIsCollecting, itemsRemaining: currentItemsRemaining } = await chrome.storage.local.get(['isCollecting', 'itemsRemaining']);
+
             if (changes.isProcessing) {
-                const { isCollecting } = await chrome.storage.local.get('isCollecting');
-                updateUI(isCollecting ?? false, changes.isProcessing.newValue ?? false);
-                
-                if (changes.isProcessing.newValue) {
-                    updateStatus('Processing items');
+                const newIsProcessing = changes.isProcessing.newValue ?? false;
+                updateUI(currentIsCollecting ?? false, newIsProcessing);
+
+                if (newIsProcessing) {
+                    updateStatus(`Processing items (${currentItemsRemaining} remaining)`, true);
                 } else {
-                    updateStatus();
+                    updateStatus(); // Clear status or set to default
                 }
-            }
-            else if (changes.itemsRemaining.newValue) {
-                updateStatus(`Processing items (${changes.itemsRemaining.newValue} remaining)`);
+            } else if (changes.itemsRemaining) {
+                 const newItemsRemaining = changes.itemsRemaining.newValue;
+                 // Ensure isProcessing is still true before updating the message
+                 const { isProcessing: currentIsProcessing } = await chrome.storage.local.get('isProcessing');
+                 if (currentIsProcessing) {
+                    updateStatus(`Processing items (${newItemsRemaining} remaining)`, true);
+                 }
             }
         });
     }
