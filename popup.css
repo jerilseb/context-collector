@@ -114,6 +114,7 @@ button:disabled {
   color: #cccccc;
   cursor: initial;
   box-shadow: none;
+  opacity: 0.8;
 }
 
 #stopCollecting {
