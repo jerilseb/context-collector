@@ -11,7 +11,7 @@ Tired of messy copy-pasting? Need to grab multiple sections from different pages
 
 ## How it Works
 
-1.  **Start Collecting:** Click the extension icon and press "Start Collecting". This activates the collection mode.
+1.  **Start Collection:** Click the extension icon and press "Start Collecting". This activates the collection mode.
 2.  **Activate Selection:** Navigate to a webpage and press the hotkey (`Alt+Z` by default).
 3.  **Select Content:** Hover your mouse over the page – selectable content blocks will get a red outline. Click the block you want to add. A confirmation toast will appear.
 4.  **Collect More:** Repeat steps 2 & 3 on the same or different pages to add more content to your collection. Each snippet includes its source URL.
