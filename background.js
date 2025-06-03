@@ -1,31 +1,11 @@
+import { processWithOpenAI, processWithGemini, isRestrictedPage } from "./util.js";
+
 const DEFAULT_SYSTEM_PROMPT = "You are a helpful assistant that cleans and improves markdown contet that is scraped from web pages.  Clean up any formatting issues, fix broken markdown syntax, remove non-meaning full content, and improve readability while preserving all the original information and meaning. Return only the cleaned markdown without any additional commentary";
 const DEFAULT_FETCH_TIMEOUT_SECS = 30;
 const DEFAULT_MAX_PARALLEL_REQUESTS = 5;
 
 let contentQueue = [];
 let isQueueManagerActive = false;
-
-async function fetchWithTimeout(url, options, timeoutMs) {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-
-  try {
-    const response = await fetch(url, {
-      ...options,
-      signal: controller.signal
-    });
-
-    clearTimeout(timeoutId);
-    return response;
-  } catch (error) {
-    clearTimeout(timeoutId);
-
-    if (error.name === 'AbortError') {
-      throw new Error(`Request timed out after ${timeoutMs}ms`);
-    }
-    throw error;
-  }
-}
 
 // Helper function to process a single markdown item
 async function handleSingleItemProcessing(markdown, aiProcessingEnabled, selectedAiProvider, openaiApiKey, openaiModel, geminiApiKey, geminiModel, fetchTimeout, systemPrompt) {
@@ -44,14 +24,6 @@ async function handleSingleItemProcessing(markdown, aiProcessingEnabled, selecte
     }
   }
   return finalContent;
-}
-
-function isRestrictedPage(tab) {
-  if (!tab?.url) {
-    return false;
-  }
-  const restrictedProtocols = ['chrome://', 'edge://', 'brave://', 'chrome-extension://'];
-  return restrictedProtocols.some(protocol => tab.url.startsWith(protocol));
 }
 
 chrome.runtime.onInstalled.addListener(async () => {
@@ -174,83 +146,6 @@ async function processContentQueue() {
   await chrome.storage.local.set({ isProcessing: false, itemsRemaining: 0 });
   isQueueManagerActive = false;
   console.log("All items processed. Queue manager stopped. isProcessing set to false.");
-}
-
-async function processWithOpenAI(markdown, apiKey, model, fetchTimeout, systemPrompt) {
-  if (!apiKey || !markdown.trim()) {
-    return markdown;
-  }
-
-  const response = await fetchWithTimeout('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`
-    },
-    body: JSON.stringify({
-      model: model,
-      messages: [{
-        role: 'system',
-        content: systemPrompt
-      }, {
-        role: 'user',
-        content: markdown
-      }],
-    })
-  }, fetchTimeout * 1000);
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(`OpenAI API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
-  }
-
-  const data = await response.json();
-  const processedContent = data.choices?.[0]?.message?.content;
-
-  if (!processedContent) {
-    throw new Error('No content received from OpenAI API');
-  }
-
-  return processedContent.trim();
-}
-
-async function processWithGemini(markdown, apiKey, model, fetchTimeout, systemPrompt) {
-  if (!apiKey || !markdown.trim()) {
-    return markdown;
-  }
-
-  const response = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      system_instruction: {
-        parts: [{
-          text: systemPrompt
-        }]
-      },
-      contents: [{
-        parts: [{
-          text: markdown
-        }]
-      }]
-    })
-  }, fetchTimeout * 1000);
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(`Gemini API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
-  }
-
-  const data = await response.json();
-  const processedContent = data.candidates?.[0]?.content?.parts?.[0]?.text;
-
-  if (!processedContent) {
-    throw new Error('No content received from Gemini API');
-  }
-
-  return processedContent.trim();
 }
 
 async function appendToStorage(newText) {
