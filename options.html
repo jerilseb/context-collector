@@ -28,6 +28,72 @@
             </section>
 
             <section class="settings-card">
+                <h2>AI Processing</h2>
+                <div class="setting-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="enableAiProcessingCheckbox">
+                        Enable AI Processing
+                    </label>
+                </div>
+
+                <div id="aiProviderOptionsContainer" style="display: none;">
+                    <div class="setting-group">
+                        <label for="aiProviderSelect">AI Provider:</label>
+                        <select id="aiProviderSelect">
+                            <option value="openai">OpenAI</option>
+                            <option value="gemini">Google Gemini</option>
+                        </select>
+                    </div>
+
+                    <div id="openaiProviderSettings" style="display: none;">
+                        <label for="openaiApiKey">OpenAI API Key:</label>
+                        <input type="password" id="openaiApiKey" placeholder="Enter your OpenAI API key">
+                        
+                        <label for="openaiModelSelect">OpenAI Model:</label>
+                        <select id="openaiModelSelect">
+                            <option value="gpt-4o-mini">GPT-4o Mini</option>
+                            <option value="gpt-4o">GPT-4o</option>
+                        </select>
+                    </div>
+
+                    <div id="geminiProviderSettings" style="display: none;">
+                        <label for="geminiApiKey">Google Gemini API Key:</label>
+                        <input type="password" id="geminiApiKey" placeholder="Enter your Google Gemini API key">
+                        
+                        <label for="geminiModelSelect">Gemini Model:</label>
+                        <select id="geminiModelSelect">
+                            <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                            <option value="gemini-2.0-flash-lite">Gemini 2.0 Flash Lite</option>
+                            <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                            <!-- Add other Gemini models here in the future -->
+                        </select>
+                    </div>
+                    
+                    <div id="commonAiSettings" style="display: none;">
+                        <label>
+                            Max Parallel AI Requests:
+                            <input type="number" id="maxParallelRequests" min="1" max="10">
+                        </label>
+
+                        <label>
+                            Request Timeout in seconds
+                            <input type="number" id="fetchTimeout" min="1">
+                        </label>
+
+                        <label>
+                            System Prompt:
+                            <textarea id="systemPrompt" rows="5" placeholder="Enter the system prompt for the AI..."></textarea>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="save-action-area">
+                    <button id="saveSettings">Save Settings</button>
+                    <div id="status" class="status-message"></div>
+                </div>
+            </section>
+
+            <section class="settings-card">
                 <h2>About</h2>
                 <p>Context Collector helps you quickly extract specific sections of a webpage and convert them into Markdown format.</p>
                 <p>Version: <span id="version"></span></p>
@@ -35,9 +101,9 @@
         </main>
 
         <footer>
-            <div id="status" class="status-message"></div>
+            <!-- Status message moved -->
         </footer>
     </div>
     <script src="options.js"></script>
 </body>
-</html> 
+</html>

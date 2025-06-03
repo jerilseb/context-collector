@@ -21,30 +21,40 @@
     'nav',
   ];
 
+  let toastTimer;
+
   function showToast(message, duration = 1000) {
-    const toast = document.createElement('div');
-    toast.textContent = message;
+    const toastId = 'context-collector-toast';
+    let toast = document.getElementById(toastId);
 
-    toast.style.position = 'fixed';
-    toast.style.fontSize = '14px';
-    toast.style.bottom = '20px';
-    toast.style.left = '50%';
-    toast.style.transform = 'translateX(-50%)';
-    toast.style.backgroundColor = 'rgba(13, 119, 151)';
-    toast.style.color = 'white';
-    toast.style.padding = '15px 30px';
-    toast.style.borderRadius = '5px';
-    toast.style.zIndex = '9999';
-    toast.style.opacity = '1';
-    toast.style.transition = 'opacity 0.5s ease-out';
+    // Clear existing timer
+    if (toastTimer) clearTimeout(toastTimer);
 
-    document.body.appendChild(toast);
+    if (toast) {
+      // Update existing toast
+      toast.textContent = message;
+    } else {
+      // Create new toast
+      toast = document.createElement('div');
+      toast.id = toastId;
+      toast.textContent = message;
 
-    setTimeout(() => {
-      toast.style.opacity = '0';
-      setTimeout(() => {
-        toast.remove();
-      }, 500);
+      toast.style.position = 'fixed';
+      toast.style.fontSize = '14px';
+      toast.style.bottom = '20px';
+      toast.style.left = '50%';
+      toast.style.transform = 'translateX(-50%)';
+      toast.style.backgroundColor = 'rgba(13, 119, 151)';
+      toast.style.color = 'white';
+      toast.style.padding = '15px 30px';
+      toast.style.borderRadius = '5px';
+      toast.style.zIndex = '9999';
+
+      document.body.appendChild(toast);
+    }
+
+    toastTimer = setTimeout(() => {
+      toast.remove();
     }, duration);
   }
 
@@ -166,7 +176,7 @@
       language = langClass.replace('language-', '').replace('lang-', '');
     }
 
-    const codeContent = getFormattedText(clonedNode);  
+    const codeContent = getFormattedText(clonedNode);
     return `\`\`\`${language}\n${codeContent}\n\`\`\`\n\n`;
   }
 
@@ -294,7 +304,7 @@
       return;
     }
 
-    // Check if we're in single capture mode
+    // Send markdown to background script
     try {
       const { isSingleCapture } = await chrome.storage.local.get('isSingleCapture');
 
@@ -303,26 +313,14 @@
         showToast('Content copied to clipboard!', 1500);
         await chrome.storage.local.set({ isSingleCapture: false });
       } else {
-        await appendToStorage(markdown);
+        chrome.runtime.sendMessage({
+          type: 'COLLECTED_CONTENT',
+          markdown: markdown
+        });
         showToast('Content added to collection', 1000);
       }
     } catch (error) {
       console.error("Error handling element click:", error);
-    }
-  }
-
-  async function appendToStorage(newText) {
-    try {
-      const { collectedContent } = await chrome.storage.local.get('collectedContent');
-      let currentContent = collectedContent || '';
-      let separator = '';
-      if (currentContent) {
-        separator = `\n\n-----------------\n\n`;
-      }
-      const updatedContent = currentContent + separator + newText;
-      await chrome.storage.local.set({ collectedContent: updatedContent });
-    } catch (error) {
-      showToast('Failed to add content.', 1500);
     }
   }
 
