@@ -60,9 +60,9 @@ document.addEventListener('DOMContentLoaded', () => {
         geminiModelSelect.value = settings.geminiModel || 'gemini-2.0-flash'; 
 
         // Populate common AI settings
-        fetchTimeoutInput.value = settings.fetchTimeout || 10;
+        fetchTimeoutInput.value = settings.fetchTimeout || 120;
         systemPromptTextarea.value = settings.systemPrompt || '';
-        maxParallelRequestsInput.value = settings.maxParallelRequests || 5;
+        maxParallelRequestsInput.value = settings.maxParallelRequests || 4;
         
         updateUI();
     }
