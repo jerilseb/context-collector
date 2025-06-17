@@ -58,6 +58,17 @@ h2 {
     color: var(--text-primary);
 }
 
+.section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.section-header h2 {
+    margin-bottom: 0;
+}
+
 .shortcut-instructions {
     margin-bottom: 1rem;
 }
@@ -126,18 +137,51 @@ label {
     margin-bottom: 0.25rem; 
 }
 
-/* Specific styling for checkbox label to align checkbox and text */
-label.checkbox-label {
-    display: flex; /* Use flexbox for alignment */
-    align-items: center; /* Vertically align items */
-    margin-bottom: 1rem; /* Keep consistent bottom margin for the group */
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 36px;
+    height: 20px;
+    transform: translateY(-1px);
 }
 
-label.checkbox-label input[type="checkbox"] {
-    margin-right: 0.75rem; /* Space between checkbox and text */
-    accent-color: var(--accent-color);
-    transform: scale(1.4); /* Removed translateY for better alignment with flex */
-    /* Adjust vertical alignment if needed with flex properties on parent */
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--border-color);
+    transition: 0.3s;
+    border-radius: 20px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+    background-color: var(--accent-color);
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(16px);
 }
 
 
@@ -204,12 +248,6 @@ textarea:focus {
 }
 
 
-/* Remove old #aiSettings style if it exists and is not used */
-/* #aiSettings {
-    margin: 1rem 0;
-    padding-top: 1rem;
-    border-top: 1px solid var(--border-color);
-} */
 
 button#saveSettings { 
     background-color: var(--accent-color);
@@ -223,7 +261,7 @@ button#saveSettings {
     transition: background-color 0.2s;
 }
 
-button:hover {
+#saveSettings:hover {
     background-color: #3a8ae6;
 }
 
