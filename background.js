@@ -38,7 +38,7 @@ chrome.runtime.onInstalled.addListener(async () => {
       openaiApiKey: '',
       openaiModel: 'gpt-4o-mini',
       geminiApiKey: '',
-      geminiModel: 'gemini-2.0-flash',
+      geminiModel: 'gemini-2.5-flash',
       isProcessing: false,
       fetchTimeout: DEFAULT_FETCH_TIMEOUT_SECS,
       systemPrompt: DEFAULT_SYSTEM_PROMPT,
