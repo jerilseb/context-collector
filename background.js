@@ -6,9 +6,12 @@ const DEFAULT_MAX_PARALLEL_REQUESTS = 4;
 
 let contentQueue = [];
 let isQueueManagerActive = false;
+let activeProcessingCount = 0;
+let processedCount = 0;
 
 // Helper function to process a single markdown item
 async function handleSingleItemProcessing(markdown, aiProcessingEnabled, selectedAiProvider, openaiApiKey, openaiModel, geminiApiKey, geminiModel, fetchTimeout, systemPrompt) {
+  console.log("Chekcing if AI Processing is enabled");
   let finalContent = markdown;
   if (aiProcessingEnabled && markdown.trim()) {
     try {
@@ -33,6 +36,8 @@ chrome.runtime.onInstalled.addListener(async () => {
       collectedContent: '',
       isSingleCapture: false,
       itemsRemaining: 0,
+      processedCount: 0,
+      processingCount: 0,
       aiProcessingEnabled: false,
       selectedAiProvider: 'openai',
       openaiApiKey: '',
@@ -77,23 +82,30 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     try {
       const { markdown } = message;
       contentQueue.push(markdown);
-      const { itemsRemaining } = await chrome.storage.local.get(['itemsRemaining']);
-      await chrome.storage.local.set({ itemsRemaining: itemsRemaining + 1 });
+      await chrome.storage.local.set({ 
+        itemsRemaining: contentQueue.length,
+        processingCount: activeProcessingCount
+      });
       processContentQueue(); // Trigger queue processing
     } catch (error) {
       console.error("Error handling collected content message:", error);
     }
+  } else if (message.type === 'RESET_PROCESSED_COUNT') {
+    processedCount = 0;
+    console.log("Processed count reset for new collection session");
   }
 });
 
 async function processContentQueue() {
-  if (isQueueManagerActive || contentQueue.length === 0) {
+  if (contentQueue.length === 0) {
     return;
   }
 
-  isQueueManagerActive = true;
-  await chrome.storage.local.set({ isProcessing: true });
-  console.log(`Queue manager started. Initial queue size: ${contentQueue.length}`);
+  if (!isQueueManagerActive) {
+    isQueueManagerActive = true;
+    await chrome.storage.local.set({ isProcessing: true });
+    console.log(`Queue manager started. Initial queue size: ${contentQueue.length}`);
+  }
 
   const {
     aiProcessingEnabled,
@@ -117,35 +129,55 @@ async function processContentQueue() {
     'maxParallelRequests'
   ]);
 
-  while (contentQueue.length > 0) {
-    await chrome.storage.local.set({ itemsRemaining: contentQueue.length });
-    const batchToProcess = contentQueue.splice(0, maxParallelRequests);
-    console.log(`Processing a batch of ${batchToProcess.length} items`);
+  // Process items immediately if under the parallel limit
+  while (contentQueue.length > 0 && activeProcessingCount < maxParallelRequests) {
+    const markdown = contentQueue.shift();
+    activeProcessingCount++;
+    
+    await chrome.storage.local.set({ 
+      itemsRemaining: contentQueue.length,
+      processingCount: activeProcessingCount
+    });
+    console.log(`Processing item (${activeProcessingCount}/${maxParallelRequests} active)`);
 
-    const processingPromises = batchToProcess.map(markdown =>
-      handleSingleItemProcessing(markdown, aiProcessingEnabled, selectedAiProvider, openaiApiKey, openaiModel, geminiApiKey, geminiModel, fetchTimeout, systemPrompt)
-    );
+    // Process item without blocking the queue
+    processItemAsync(markdown, aiProcessingEnabled, selectedAiProvider, openaiApiKey, openaiModel, geminiApiKey, geminiModel, fetchTimeout, systemPrompt);
+  }
+}
 
-    try {
-      const processedContents = await Promise.all(processingPromises);
-      console.log(`Batch of ${processedContents.length} items processed by AI`);
-
-      for (const finalContent of processedContents) {
-        await appendToStorage(finalContent);
-      }
-      console.log(`Batch of ${processedContents.length} items appended to storage`);
-    } catch (error) {
-      // This catch is for errors from Promise.all itself, though handleSingleItemProcessing should catch its own errors.
-      console.error("Error processing a batch:", error);
-      // Decide on error handling: e.g., retry, skip batch, or halt.
-      // For now, we'll log and continue to the next batch if possible,
-      // but individual item errors are handled within handleSingleItemProcessing.
+async function processItemAsync(markdown, aiProcessingEnabled, selectedAiProvider, openaiApiKey, openaiModel, geminiApiKey, geminiModel, fetchTimeout, systemPrompt) {
+  try {
+    const finalContent = await handleSingleItemProcessing(markdown, aiProcessingEnabled, selectedAiProvider, openaiApiKey, openaiModel, geminiApiKey, geminiModel, fetchTimeout, systemPrompt);
+    console.log("Final content:", markdown.length)
+    await appendToStorage(finalContent);
+    processedCount++;
+    console.log(`Item processed and appended to storage`);
+  } catch (error) {
+    console.error("Error processing item:", error);
+  } finally {
+    activeProcessingCount--;
+    
+    // Update storage with current counts
+    await chrome.storage.local.set({
+      processedCount: processedCount,
+      processingCount: activeProcessingCount,
+      itemsRemaining: contentQueue.length
+    });
+    
+    // Check if more items can be processed
+    if (contentQueue.length > 0) {
+      processContentQueue();
+    } else if (activeProcessingCount === 0) {
+      // All processing complete
+      await chrome.storage.local.set({ 
+        isProcessing: false, 
+        itemsRemaining: 0,
+        processingCount: 0
+      });
+      isQueueManagerActive = false;
+      console.log("All items processed. Queue manager stopped. isProcessing set to false.");
     }
   }
-
-  await chrome.storage.local.set({ isProcessing: false, itemsRemaining: 0 });
-  isQueueManagerActive = false;
-  console.log("All items processed. Queue manager stopped. isProcessing set to false.");
 }
 
 async function appendToStorage(newText) {

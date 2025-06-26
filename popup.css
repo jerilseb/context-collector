@@ -138,17 +138,44 @@ button:disabled {
   min-height: 1.2em;
 }
 
-.processing-indicator {
+.processing-status {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 13px;
+  /* color: var(--popup-status-text); */
+}
+
+.processing-header {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px; /* Space between spinner and text */
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.processing-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.processing-item {
+  display: flex;
+  justify-content: space-between;
+  color: var(--popup-status-text);
+  align-items: center;
+  padding: 2px 0;
+}
+
+.processing-item .label {
+  font-weight: 500;
 }
 
 .spinner {
   width: 12px;
   height: 12px;
-  border: 2px solid var(--popup-status-text); /* Use status text color */
+  border: 2px solid;
+  /* border: 2px solid var(--popup-status-text); */
   border-top-color: transparent;
   border-radius: 50%;
   animation: spin 1s linear infinite;

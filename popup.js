@@ -4,18 +4,34 @@ const stopBtn = document.getElementById('stopCollecting');
 const optionsBtn = document.getElementById('openOptions');
 const textStatus = document.getElementById('text-status');
 const processingStatus = document.getElementById('processing-status');
-const processingMessageText = document.getElementById('processing-message-text');
+const processedCountEl = document.getElementById('processed-count');
+const processingCountEl = document.getElementById('processing-count');
+const queuedCountEl = document.getElementById('queued-count');
+const processingSpinner = document.getElementById('processing-spinner');
+const processingTitle = document.getElementById('processing-title');
 
 function isRestrictedPage(tab) {
     const restricted = ['chrome://', 'edge://', 'brave://', 'chrome-extension://'];
     return restricted.some(protocol => tab?.url?.startsWith(protocol));
 }
 
-function updateStatus(message = '', showSpinner = false) {
-    if (showSpinner) {
-        processingMessageText.textContent = message;
+function updateStatus(message = '', showProcessingDetails = false, processed = 0, processing = 0, queued = 0, isActive = true) {
+    if (showProcessingDetails) {
+        processedCountEl.textContent = processed;
+        processingCountEl.textContent = processing;
+        queuedCountEl.textContent = queued;
+        
+        // Show/hide spinner and update title based on active state
+        if (isActive) {
+            processingSpinner.style.display = 'block';
+            processingTitle.textContent = 'Processing';
+        } else {
+            processingSpinner.style.display = 'none';
+            processingTitle.textContent = 'Completed';
+        }
+        
         textStatus.style.display = 'none';
-        processingStatus.style.display = 'flex';
+        processingStatus.style.display = 'block';
     } else {
         textStatus.textContent = message;
         textStatus.style.display = 'block';
@@ -49,7 +65,15 @@ async function startCollecting() {
         return;
     }
     
-    await chrome.storage.local.set({ isCollecting: true, collectedContent: '' });
+    // Reset processed count when starting a new collection session
+    await chrome.storage.local.set({ 
+        isCollecting: true, 
+        collectedContent: '',
+        processedCount: 0
+    });
+    
+    // Notify background script to reset its counter
+    chrome.runtime.sendMessage({ type: 'RESET_PROCESSED_COUNT' });
     await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['notification.js'] });
     window.close();
 }
@@ -88,7 +112,7 @@ optionsBtn.addEventListener('click', () => chrome.runtime.openOptionsPage());
 
 // Initialize on load
 document.addEventListener('DOMContentLoaded', async () => {
-    const { isCollecting, isProcessing, itemsRemaining } = await chrome.storage.local.get(['isCollecting', 'isProcessing', 'itemsRemaining']);
+    const { isCollecting, isProcessing, processedCount, processingCount, itemsRemaining } = await chrome.storage.local.get(['isCollecting', 'isProcessing', 'processedCount', 'processingCount', 'itemsRemaining']);
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     
     if (isRestrictedPage(tab)) {
@@ -100,29 +124,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateUI(isCollecting ?? false, isProcessing ?? false);
     
     if (isProcessing) {
-        updateStatus(`Processing items (${itemsRemaining} remaining)`, true);
-
-        // Listen for processing state changes only when processing is active
-        chrome.storage.onChanged.addListener(async (changes) => {
-            const { isCollecting: currentIsCollecting, itemsRemaining: currentItemsRemaining } = await chrome.storage.local.get(['isCollecting', 'itemsRemaining']);
-
-            if (changes.isProcessing) {
-                const newIsProcessing = changes.isProcessing.newValue ?? false;
-                updateUI(currentIsCollecting ?? false, newIsProcessing);
-
-                if (newIsProcessing) {
-                    updateStatus(`Processing items (${currentItemsRemaining} remaining)`, true);
-                } else {
-                    updateStatus(); // Clear status or set to default
-                }
-            } else if (changes.itemsRemaining) {
-                 const newItemsRemaining = changes.itemsRemaining.newValue;
-                 // Ensure isProcessing is still true before updating the message
-                 const { isProcessing: currentIsProcessing } = await chrome.storage.local.get('isProcessing');
-                 if (currentIsProcessing) {
-                    updateStatus(`Processing items (${newItemsRemaining} remaining)`, true);
-                 }
-            }
-        });
+        updateStatus('', true, processedCount ?? 0, processingCount ?? 0, itemsRemaining ?? 0, true);
     }
+
+    // Listen for processing state changes
+    chrome.storage.onChanged.addListener(async (changes) => {
+        const { isCollecting: currentIsCollecting, processedCount: currentProcessed, processingCount: currentProcessing, itemsRemaining: currentQueued, isProcessing: currentIsProcessing } = await chrome.storage.local.get(['isCollecting', 'processedCount', 'processingCount', 'itemsRemaining', 'isProcessing']);
+
+        if (changes.isProcessing) {
+            const newIsProcessing = changes.isProcessing.newValue ?? false;
+            updateUI(currentIsCollecting ?? false, newIsProcessing);
+
+            if (newIsProcessing) {
+                updateStatus('', true, currentProcessed ?? 0, currentProcessing ?? 0, currentQueued ?? 0, true);
+            } else {
+                // Keep showing final counts when processing is complete
+                updateStatus('', true, currentProcessed ?? 0, 0, 0, false);
+            }
+        } else if (changes.processedCount || changes.processingCount || changes.itemsRemaining) {
+            // Update counts if we're currently showing processing details
+            if (currentIsProcessing || processingStatus.style.display === 'block') {
+                updateStatus('', true, currentProcessed ?? 0, currentProcessing ?? 0, currentQueued ?? 0, currentIsProcessing ?? false);
+            }
+        }
+    });
 });

@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Set AI Provider. Default to 'openai' if AI is enabled and no provider was previously selected.
         // If AI is disabled, this value doesn't strictly matter for UI until re-enabled.
-        aiProviderSelect.value = settings.selectedAiProvider || 'openai'; 
+        aiProviderSelect.value = settings.selectedAiProvider || 'gemini'; 
 
         // Populate OpenAI settings
         openaiApiKeyInput.value = settings.openaiApiKey || '';
@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Populate Gemini settings
         geminiApiKeyInput.value = settings.geminiApiKey || '';
-        geminiModelSelect.value = settings.geminiModel || 'gemini-2.0-flash'; 
+        geminiModelSelect.value = settings.geminiModel || 'gemini-2.5-flash'; 
 
         // Populate common AI settings
         fetchTimeoutInput.value = settings.fetchTimeout || 120;
@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
             openaiModel: openaiModelSelect.value,
             geminiApiKey: geminiApiKeyInput.value.trim(),
             geminiModel: geminiModelSelect.value,
-            fetchTimeout: parseInt(fetchTimeoutInput.value, 10) || 10,
+            fetchTimeout: parseInt(fetchTimeoutInput.value, 10) || 120,
             systemPrompt: systemPromptTextarea.value.trim(),
             maxParallelRequests: parseInt(maxParallelRequestsInput.value, 10) || 5
         };
