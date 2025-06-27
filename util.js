@@ -1,31 +1,28 @@
-async function fetchWithTimeout(url, options, timeoutMs) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+async function withTimeout(promise, ms, timeoutError = new Error('Operation timed out')) {
+    let timeoutId;
+    const timeoutPromise = new Promise((_, reject) => {
+        timeoutId = setTimeout(() => {
+            reject(timeoutError);
+        }, ms);
+    });
 
     try {
-        const response = await fetch(url, {
-            ...options,
-            signal: controller.signal
-        });
-
+        return await Promise.race([
+            promise,
+            timeoutPromise
+        ]);
+    } finally {
         clearTimeout(timeoutId);
-        return response;
-    } catch (error) {
-        clearTimeout(timeoutId);
-
-        if (error.name === 'AbortError') {
-            throw new Error(`Request timed out after ${timeoutMs}ms`);
-        }
-        throw error;
     }
 }
 
-async function processWithOpenAI(markdown, apiKey, model, timeout, systemPrompt) {
+
+async function processWithOpenAI(markdown, apiKey, model, systemPrompt) {
     if (!apiKey || !markdown.trim()) {
         return markdown;
     }
 
-    const response = await fetchWithTimeout('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -41,7 +38,7 @@ async function processWithOpenAI(markdown, apiKey, model, timeout, systemPrompt)
                 content: markdown
             }],
         })
-    }, timeout * 1000);
+    });
 
     if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -52,18 +49,18 @@ async function processWithOpenAI(markdown, apiKey, model, timeout, systemPrompt)
     const processedContent = data.choices?.[0]?.message?.content;
 
     if (!processedContent) {
-        throw new Error('No content received from OpenAI API');
+        throw new Error('No content received from Gemini API');
     }
 
     return processedContent.trim();
 }
 
-async function processWithGemini(markdown, apiKey, model, timeout, systemPrompt) {
+async function processWithGemini(markdown, apiKey, model, systemPrompt) {
     if (!apiKey || !markdown.trim()) {
         return markdown;
     }
 
-    const response = await fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -80,7 +77,7 @@ async function processWithGemini(markdown, apiKey, model, timeout, systemPrompt)
                 }]
             }]
         })
-    }, timeout * 1000);
+    });
 
     if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -98,27 +95,27 @@ async function processWithGemini(markdown, apiKey, model, timeout, systemPrompt)
 }
 
 async function callAIProvider(markdown, providerName, openaiApiKey, openaiModel, geminiApiKey, geminiModel, fetchTimeout, systemPrompt) {
-  let finalContent = markdown;
-  try {
-    if (providerName === 'openai' && openaiApiKey) {
-      console.log("Processing item with OpenAI...");
-      finalContent = await processWithOpenAI(markdown, openaiApiKey, openaiModel, fetchTimeout, systemPrompt);
-    } else if (providerName === 'gemini' && geminiApiKey) {
-      console.log("Processing item with Gemini...");
-      finalContent = await processWithGemini(markdown, geminiApiKey, geminiModel, fetchTimeout, systemPrompt);
+    let finalContent = markdown;
+    try {
+        if (providerName === 'openai' && openaiApiKey) {
+            console.log("Processing item with OpenAI...");
+            finalContent = await withTimeout(processWithOpenAI(markdown, openaiApiKey, openaiModel, systemPrompt), fetchTimeout * 1000);
+        } else if (providerName === 'gemini' && geminiApiKey) {
+            console.log("Processing item with Gemini...");
+            finalContent = await withTimeout(processWithGemini(markdown, geminiApiKey, geminiModel, systemPrompt), fetchTimeout * 1000);
+        }
+    } catch (error) {
+        console.error(`AI processing failed for provider '${providerName}', using original content:`, error);
     }
-  } catch (error) {
-    console.error(`AI processing failed for provider '${providerName}', using original content:`, error);
-  }
-  return finalContent;
+    return finalContent;
 }
 
 function isRestrictedPage(tab) {
-  if (!tab?.url) {
-    return false;
-  }
-  const restrictedProtocols = ['chrome://', 'edge://', 'brave://', 'chrome-extension://'];
-  return restrictedProtocols.some(protocol => tab.url.startsWith(protocol));
+    if (!tab?.url) {
+        return false;
+    }
+    const restrictedProtocols = ['chrome://', 'edge://', 'brave://', 'chrome-extension://'];
+    return restrictedProtocols.some(protocol => tab.url.startsWith(protocol));
 }
 
 export {
