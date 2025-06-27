@@ -20,7 +20,7 @@ function updateStatus(message = '', showProcessingDetails = false, processed = 0
         processedCountEl.textContent = processed;
         processingCountEl.textContent = processing;
         queuedCountEl.textContent = queued;
-        
+
         // Show/hide spinner and update title based on active state
         if (isActive) {
             processingSpinner.style.display = 'block';
@@ -29,7 +29,7 @@ function updateStatus(message = '', showProcessingDetails = false, processed = 0
             processingSpinner.style.display = 'none';
             processingTitle.textContent = 'Completed';
         }
-        
+
         textStatus.style.display = 'none';
         processingStatus.style.display = 'block';
     } else {
@@ -42,7 +42,7 @@ function updateStatus(message = '', showProcessingDetails = false, processed = 0
 function updateUI(isCollecting, isProcessing) {
     startBtn.style.display = isCollecting ? 'none' : 'block';
     stopBtn.style.display = isCollecting ? 'block' : 'none';
-    
+
     if (isProcessing) {
         singleBtn.disabled = true;
         startBtn.disabled = true;
@@ -64,14 +64,14 @@ async function startCollecting() {
         updateStatus('Cannot run on this page');
         return;
     }
-    
+
     // Reset processed count when starting a new collection session
-    await chrome.storage.local.set({ 
-        isCollecting: true, 
+    await chrome.storage.local.set({
+        isCollecting: true,
         collectedContent: '',
         processedCount: 0
     });
-    
+
     // Notify background script to reset its counter
     chrome.runtime.sendMessage({ type: 'RESET_PROCESSED_COUNT' });
     await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['notification.js'] });
@@ -84,7 +84,7 @@ async function singleCapture() {
         updateStatus('Cannot run on this page');
         return;
     }
-    
+
     await chrome.storage.local.set({ isSingleCapture: true });
     await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ['content.js'] });
     window.close();
@@ -92,14 +92,14 @@ async function singleCapture() {
 
 async function stopCollecting() {
     const { collectedContent } = await chrome.storage.local.get('collectedContent');
-    
+
     if (collectedContent) {
         await navigator.clipboard.writeText(collectedContent);
         updateStatus('Copied to clipboard!');
     } else {
         updateStatus('No content collected');
     }
-    
+
     await chrome.storage.local.set({ isCollecting: false, collectedContent: '' });
     updateUI(false, false);
 }
@@ -114,36 +114,35 @@ optionsBtn.addEventListener('click', () => chrome.runtime.openOptionsPage());
 document.addEventListener('DOMContentLoaded', async () => {
     const { isCollecting, isProcessing, processedCount, processingCount, itemsRemaining } = await chrome.storage.local.get(['isCollecting', 'isProcessing', 'processedCount', 'processingCount', 'itemsRemaining']);
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    
+
     if (isRestrictedPage(tab)) {
         updateStatus('Cannot run on this page');
         singleBtn.disabled = startBtn.disabled = true;
         return;
     }
-    
+
     updateUI(isCollecting ?? false, isProcessing ?? false);
-    
-    if (isProcessing) {
-        updateStatus('', true, processedCount ?? 0, processingCount ?? 0, itemsRemaining ?? 0, true);
+
+    // Show processing details if currently processing OR if we have completed items to display
+    if (isProcessing || processedCount > 0) {
+        updateStatus('', true, processedCount ?? 0, processingCount ?? 0, itemsRemaining ?? 0, isProcessing ?? false);
     }
 
     // Listen for processing state changes
     chrome.storage.onChanged.addListener(async (changes) => {
-        const { isCollecting: currentIsCollecting, processedCount: currentProcessed, processingCount: currentProcessing, itemsRemaining: currentQueued, isProcessing: currentIsProcessing } = await chrome.storage.local.get(['isCollecting', 'processedCount', 'processingCount', 'itemsRemaining', 'isProcessing']);
+        const {
+            isCollecting: currentIsCollecting,
+            processedCount: currentProcessed,
+            processingCount: currentProcessing,
+            itemsRemaining: currentQueued,
+            isProcessing: currentIsProcessing
+        } = await chrome.storage.local.get(['isCollecting', 'processedCount', 'processingCount', 'itemsRemaining', 'isProcessing']);
 
-        if (changes.isProcessing) {
-            const newIsProcessing = changes.isProcessing.newValue ?? false;
-            updateUI(currentIsCollecting ?? false, newIsProcessing);
+        if (changes.isProcessing || changes.processedCount || changes.processingCount || changes.itemsRemaining) {
+            updateUI(currentIsCollecting ?? false, currentIsProcessing ?? false);
 
-            if (newIsProcessing) {
-                updateStatus('', true, currentProcessed ?? 0, currentProcessing ?? 0, currentQueued ?? 0, true);
-            } else {
-                // Keep showing final counts when processing is complete
-                updateStatus('', true, currentProcessed ?? 0, 0, 0, false);
-            }
-        } else if (changes.processedCount || changes.processingCount || changes.itemsRemaining) {
-            // Update counts if we're currently showing processing details
-            if (currentIsProcessing || processingStatus.style.display === 'block') {
+            // Show processing details if currently processing OR if we have completed items
+            if (currentIsProcessing || currentProcessed > 0) {
                 updateStatus('', true, currentProcessed ?? 0, currentProcessing ?? 0, currentQueued ?? 0, currentIsProcessing ?? false);
             }
         }

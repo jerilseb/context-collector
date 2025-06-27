@@ -149,14 +149,15 @@ async function processItemAsync(markdown, aiProcessingEnabled, selectedAiProvide
     if (contentQueue.length > 0) {
       processContentQueue();
     } else if (activeProcessingCount === 0) {
-      // All processing complete
+      // All processing complete - preserve final stats
       await chrome.storage.local.set({
         isProcessing: false,
         itemsRemaining: 0,
         processingCount: 0
+        // Keep processedCount intact to show final results
       });
       isQueueManagerActive = false;
-      console.log("All items processed. Queue manager stopped. isProcessing set to false.");
+      console.log(`All items processed. Queue manager stopped. Final count: ${processedCount} items processed.`);
     }
   }
 }
