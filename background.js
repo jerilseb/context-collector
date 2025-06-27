@@ -10,21 +10,18 @@ let activeProcessingCount = 0;
 let processedCount = 0;
 
 // Helper function to process a single markdown item
-async function handleSingleItemProcessing(markdown, aiProcessingEnabled, selectedAiProvider, openaiApiKey, openaiModel, geminiApiKey, geminiModel, fetchTimeout, systemPrompt) {
-  console.log("Chekcing if AI Processing is enabled");
+async function callAIProvider(markdown, selectedAiProvider, openaiApiKey, openaiModel, geminiApiKey, geminiModel, fetchTimeout, systemPrompt) {
   let finalContent = markdown;
-  if (aiProcessingEnabled && markdown.trim()) {
-    try {
-      if (selectedAiProvider === 'openai' && openaiApiKey) {
-        console.log("Processing item with OpenAI...");
-        finalContent = await processWithOpenAI(markdown, openaiApiKey, openaiModel, fetchTimeout, systemPrompt);
-      } else if (selectedAiProvider === 'gemini' && geminiApiKey) {
-        console.log("Processing item with Gemini...");
-        finalContent = await processWithGemini(markdown, geminiApiKey, geminiModel, fetchTimeout, systemPrompt);
-      }
-    } catch (error) {
-      console.error(`AI processing failed for provider '${selectedAiProvider}', using original content:`, error);
+  try {
+    if (selectedAiProvider === 'openai' && openaiApiKey) {
+      console.log("Processing item with OpenAI...");
+      finalContent = await processWithOpenAI(markdown, openaiApiKey, openaiModel, fetchTimeout, systemPrompt);
+    } else if (selectedAiProvider === 'gemini' && geminiApiKey) {
+      console.log("Processing item with Gemini...");
+      finalContent = await processWithGemini(markdown, geminiApiKey, geminiModel, fetchTimeout, systemPrompt);
     }
+  } catch (error) {
+    console.error(`AI processing failed for provider '${selectedAiProvider}', using original content:`, error);
   }
   return finalContent;
 }
@@ -82,7 +79,7 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     try {
       const { markdown } = message;
       contentQueue.push(markdown);
-      await chrome.storage.local.set({ 
+      await chrome.storage.local.set({
         itemsRemaining: contentQueue.length,
         processingCount: activeProcessingCount
       });
@@ -133,8 +130,8 @@ async function processContentQueue() {
   while (contentQueue.length > 0 && activeProcessingCount < maxParallelRequests) {
     const markdown = contentQueue.shift();
     activeProcessingCount++;
-    
-    await chrome.storage.local.set({ 
+
+    await chrome.storage.local.set({
       itemsRemaining: contentQueue.length,
       processingCount: activeProcessingCount
     });
@@ -147,8 +144,10 @@ async function processContentQueue() {
 
 async function processItemAsync(markdown, aiProcessingEnabled, selectedAiProvider, openaiApiKey, openaiModel, geminiApiKey, geminiModel, fetchTimeout, systemPrompt) {
   try {
-    const finalContent = await handleSingleItemProcessing(markdown, aiProcessingEnabled, selectedAiProvider, openaiApiKey, openaiModel, geminiApiKey, geminiModel, fetchTimeout, systemPrompt);
-    console.log("Final content:", markdown.length)
+    let finalContent = markdown;
+    if (aiProcessingEnabled && markdown.trim()) {
+      finalContent = await callAIProvider(markdown, selectedAiProvider, openaiApiKey, openaiModel, geminiApiKey, geminiModel, fetchTimeout, systemPrompt);
+    }
     await appendToStorage(finalContent);
     processedCount++;
     console.log(`Item processed and appended to storage`);
@@ -156,21 +155,21 @@ async function processItemAsync(markdown, aiProcessingEnabled, selectedAiProvide
     console.error("Error processing item:", error);
   } finally {
     activeProcessingCount--;
-    
+
     // Update storage with current counts
     await chrome.storage.local.set({
       processedCount: processedCount,
       processingCount: activeProcessingCount,
       itemsRemaining: contentQueue.length
     });
-    
+
     // Check if more items can be processed
     if (contentQueue.length > 0) {
       processContentQueue();
     } else if (activeProcessingCount === 0) {
       // All processing complete
-      await chrome.storage.local.set({ 
-        isProcessing: false, 
+      await chrome.storage.local.set({
+        isProcessing: false,
         itemsRemaining: 0,
         processingCount: 0
       });
