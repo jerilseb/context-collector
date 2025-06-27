@@ -97,6 +97,22 @@ async function processWithGemini(markdown, apiKey, model, timeout, systemPrompt)
     return processedContent.trim();
 }
 
+async function callAIProvider(markdown, providerName, openaiApiKey, openaiModel, geminiApiKey, geminiModel, fetchTimeout, systemPrompt) {
+  let finalContent = markdown;
+  try {
+    if (providerName === 'openai' && openaiApiKey) {
+      console.log("Processing item with OpenAI...");
+      finalContent = await processWithOpenAI(markdown, openaiApiKey, openaiModel, fetchTimeout, systemPrompt);
+    } else if (providerName === 'gemini' && geminiApiKey) {
+      console.log("Processing item with Gemini...");
+      finalContent = await processWithGemini(markdown, geminiApiKey, geminiModel, fetchTimeout, systemPrompt);
+    }
+  } catch (error) {
+    console.error(`AI processing failed for provider '${providerName}', using original content:`, error);
+  }
+  return finalContent;
+}
+
 function isRestrictedPage(tab) {
   if (!tab?.url) {
     return false;
@@ -106,7 +122,6 @@ function isRestrictedPage(tab) {
 }
 
 export {
-    processWithGemini,
-    processWithOpenAI,
+    callAIProvider,
     isRestrictedPage
 }

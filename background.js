@@ -1,4 +1,4 @@
-import { processWithOpenAI, processWithGemini, isRestrictedPage } from "./util.js";
+import { callAIProvider, isRestrictedPage } from "./util.js";
 
 const DEFAULT_SYSTEM_PROMPT = "You are a helpful assistant that cleans and improves markdown content that is scraped from web pages.  Clean up any formatting issues, fix broken markdown syntax, remove non-meaning full content, and improve readability while preserving all the original information and meaning. Return only the cleaned markdown without any additional commentary";
 const DEFAULT_FETCH_TIMEOUT_SECS = 120;
@@ -8,23 +8,6 @@ let contentQueue = [];
 let isQueueManagerActive = false;
 let activeProcessingCount = 0;
 let processedCount = 0;
-
-// Helper function to process a single markdown item
-async function callAIProvider(markdown, selectedAiProvider, openaiApiKey, openaiModel, geminiApiKey, geminiModel, fetchTimeout, systemPrompt) {
-  let finalContent = markdown;
-  try {
-    if (selectedAiProvider === 'openai' && openaiApiKey) {
-      console.log("Processing item with OpenAI...");
-      finalContent = await processWithOpenAI(markdown, openaiApiKey, openaiModel, fetchTimeout, systemPrompt);
-    } else if (selectedAiProvider === 'gemini' && geminiApiKey) {
-      console.log("Processing item with Gemini...");
-      finalContent = await processWithGemini(markdown, geminiApiKey, geminiModel, fetchTimeout, systemPrompt);
-    }
-  } catch (error) {
-    console.error(`AI processing failed for provider '${selectedAiProvider}', using original content:`, error);
-  }
-  return finalContent;
-}
 
 chrome.runtime.onInstalled.addListener(async () => {
   try {
@@ -92,6 +75,11 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     console.log("Processed count reset for new collection session");
   }
 });
+
+chrome.action.onClicked.addListener((tab) => {
+  console.log("Extension icon clicked on tab:", tab);
+});
+
 
 async function processContentQueue() {
   if (contentQueue.length === 0) {
