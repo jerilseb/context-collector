@@ -2,12 +2,9 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-Effortlessly collect specific content blocks from multiple web pages and consolidate them into clean Markdown, ready for your clipboard.
+Collect specific content blocks from multiple web pages and consolidate them into clean Markdown, ready for your clipboard.
 
-<!-- Optional: Add a GIF/Screenshot here demonstrating the selection process -->
-<!-- ![Context Collector Demo](link_to_your_gif_or_screenshot.gif) -->
-
-Tired of messy copy-pasting? Need to grab multiple sections from different pages? Context Collector lets you precisely select elements and builds a clean Markdown collection for you.
+[output.webm](https://github.com/user-attachments/assets/4d8390cd-5e99-4f6e-a4c5-02fb2451fb8a)
 
 ## How it Works
 
@@ -38,18 +35,9 @@ Press `Esc` anytime during the selection process (step 3) to cancel selecting fr
 5.  Select the `context-collector` folder (the one containing `manifest.json`).
 6.  The Context Collector icon ✨ will appear in your browser toolbar.
 
-## Why Use Context Collector?
-
-*   **Save Time:** Much faster than manual copy, paste, and reformat cycles.
-*   **Clean Output:** Get structured, usable Markdown.
-*   **Focused Collection:** Grab only what you need, ignoring ads and sidebars.
-*   **Research & Note-Taking:** Perfect for gathering information from multiple sources.
-*   **Content Curation:** Easily assemble snippets for blog posts or documentation.
 
 ## Limitations
 
-*   Performance may vary on extremely complex or JavaScript-heavy pages.
-*   Cannot run on restricted browser pages (e.g., `chrome://`, `edge://`) or the Chrome Web Store itself.
 *   Markdown conversion is based on common HTML structures and might not perfectly capture every edge case.
 
 ## Contributing
