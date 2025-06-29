@@ -16,17 +16,7 @@ Collect specific content blocks from multiple web pages and consolidate them int
 
 Press `Esc` anytime during the selection process (step 3) to cancel selecting from the current page.
 
-## Key Features
-
-*   **Multi-Select Accumulation:** Collect content from various elements across multiple pages.
-*   **Visual Element Selection:** Easily identify and select content blocks with hover highlighting.
-*   **Automatic Markdown Conversion:** Converts common HTML (headings, lists, code blocks, tables, bold/italics) to clean Markdown.
-*   **Source Tracking:** Automatically adds the source URL for each collected snippet.
-*   **Simple Controls:** Easy start/stop via the popup and hotkey activation.
-*   **Clipboard Ready:** Copies the final compiled Markdown with one click.
-*   **Configurable Hotkey:** Change the keyboard shortcut via Chrome's extension shortcuts page (chrome://extensions/shortcuts).
-
-## Installation (Development/Testing)
+## Installation
 
 1.  Download or clone this repository.
 2.  Open Chrome/Edge and navigate to `chrome://extensions` or `edge://extensions`.
@@ -46,4 +36,4 @@ Found a bug or have an idea? Feel free to open an issue or submit a pull request
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details (You'll need to add a `LICENSE` file, typically containing the MIT license text).
+This project is licensed under the MIT License
