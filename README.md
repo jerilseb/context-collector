@@ -2,19 +2,25 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-Collect specific content blocks from multiple web pages and consolidate them into clean Markdown, ready for your clipboard.
+This extension lets you collect specific content blocks from web pages and consolidate them into clean Markdown, ready for your clipboard. Choose between **single capture** mode for quick one-time selections or **collection** mode for gathering content from multiple pages.
 
 [output.webm](https://github.com/user-attachments/assets/4d8390cd-5e99-4f6e-a4c5-02fb2451fb8a)
 
 ## How it Works
 
+### Single Capture Mode
+- Click the extension icon and press "Single Capture"
+- Hover your mouse over the page – selectable content blocks will get a red outline
+- Click the block you want to capture. The content is immediately copied to your clipboard as Markdown
+
+### Collection Mode
 1.  **Start Collecting:** Click the extension icon and press "Start Collecting". This activates the collection mode.
 2.  **Activate Selection:** Navigate to a webpage and press the hotkey (`Alt+Z` by default).
 3.  **Select Content:** Hover your mouse over the page – selectable content blocks will get a red outline. Click the block you want to add. A confirmation toast will appear.
 4.  **Collect More:** Repeat steps 2 & 3 on the same or different pages to add more content to your collection. Each snippet includes its source URL.
 5.  **Finish & Copy:** When done, click the extension icon again and press "Stop Collecting & Copy". All collected content (formatted as Markdown) is copied to your clipboard.
 
-Press `Esc` anytime during the selection process (step 3) to cancel selecting from the current page.
+Press `Esc` anytime during the selection process to cancel selecting from the current page.
 
 ## Installation
 
