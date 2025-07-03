@@ -21,6 +21,18 @@
     'nav',
   ];
 
+
+  let overlay = document.getElementById('context-collector-overlay');
+  if (overlay === null) {
+    overlay = document.createElement('div');
+    overlay.id = 'context-collector-overlay';
+    overlay.style.position = 'fixed';
+    overlay.style.backgroundColor = 'rgba(3, 252, 123, 0.3)';
+    overlay.style.pointerEvents = 'none';
+    overlay.style.zIndex = '99999';
+    document.body.appendChild(overlay);
+  }
+
   function showToast(message, duration = 1000) {
     const toast = document.createElement('div');
     toast.textContent = message;
@@ -166,7 +178,7 @@
       language = langClass.replace('language-', '').replace('lang-', '');
     }
 
-    const codeContent = getFormattedText(clonedNode);  
+    const codeContent = getFormattedText(clonedNode);
     return `\`\`\`${language}\n${codeContent}\n\`\`\`\n\n`;
   }
 
@@ -328,31 +340,19 @@
   }
 
   function handleElementHover(event) {
-    if (!isSelectionActive) return; // Do nothing if the extension is inactive
+    console.log("mouse event fired");
+    if (!isSelectionActive) return;
 
-    const element = event.target.closest('*');
+    // const element = event.target.closest('*');
+    const element = document.elementFromPoint(event.clientX, event.clientY);
+
     if (!element || element === hoveredElement) return;
 
-    // Show outline on the hovered element
-    if (hoveredElement) {
-      hoveredElement.style.outline = '';
-    }
-    element.style.outline = '4px solid red';
-
-    // // Create an overlay on the hovered element
-    // document.getElementById('element-overlay')?.remove();
-    // const rect = element.getBoundingClientRect();
-    // const overlay = document.createElement('div');
-    // overlay.id = 'element-overlay';
-    // overlay.style.position = 'absolute';
-    // overlay.style.top = (rect.top + window.scrollY) + 'px';
-    // overlay.style.left = (rect.left + window.scrollX) + 'px';
-    // overlay.style.width = rect.width + 'px';
-    // overlay.style.height = rect.height + 'px';
-    // overlay.style.backgroundColor = 'rgba(3, 252, 123, 0.3)';
-    // overlay.style.pointerEvents = 'none';
-    // overlay.style.zIndex = '9999';
-    // document.body.appendChild(overlay);
+    const rect = element.getBoundingClientRect();
+    overlay.style.top = (rect.top) + 'px';
+    overlay.style.left = (rect.left) + 'px';
+    overlay.style.width = rect.width + 'px';
+    overlay.style.height = rect.height + 'px';
 
     hoveredElement = element;
   }
@@ -365,54 +365,38 @@
     }
   }
 
-  function handleElementHoverOut(event) {
-    if (!isSelectionActive) return; // Do nothing if the extension is inactive
+  function handleScroll() {
+    if (!hoveredElement) return;
 
-    const element = event.target.closest('*');
-    if (element === hoveredElement) {
-
-      // // Remove overlay
-      // document.getElementById('element-overlay')?.remove();
-
-      // Remove outline
-      element.style.outline = '';
-
-      hoveredElement = null;
-    }
+    const rect = hoveredElement.getBoundingClientRect();
+    overlay.style.left = `${rect.left}px`;
+    overlay.style.top = `${rect.top}px`;
   }
 
   function deactivateSelection() {
-    // Remove all event listeners
     document.removeEventListener('click', handleElementClick, true);
     document.removeEventListener('mouseover', handleElementHover);
-    document.removeEventListener('mouseout', handleElementHoverOut);
     document.removeEventListener('keydown', handleEscapeKey); // Remove escape listener
+    window.removeEventListener('scroll', handleScroll)
 
-    // // Remove overlay
-    // document.getElementById('element-overlay')?.remove();
+    // Remove overlay
+    overlay.style.width = 0;
+    overlay.style.height = 0;
 
-    // Remove outline
-    if (hoveredElement) {
-      hoveredElement.style.outline = '';
-    }
-
-    // Reset hovered element
     hoveredElement = null;
-
-    // Set extension as inactive
     isSelectionActive = false;
   }
 
   async function activateSelection() {
-    // Reattach event listeners
     document.addEventListener('click', handleElementClick, true);
-    document.addEventListener('mouseover', handleElementHover);
-    document.addEventListener('mouseout', handleElementHoverOut);
+    document.addEventListener('mousemove', handleElementHover);
     document.addEventListener('keydown', handleEscapeKey); // Add escape listener
-    isSelectionActive = true;
+    window.addEventListener('scroll', handleScroll, true);
 
+    isSelectionActive = true;
     showToast('Select content to copy to clipboard', 1500);
   }
+
   // Initialize the extension selection mode when script is injected
   activateSelection();
 })();
