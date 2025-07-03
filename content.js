@@ -29,7 +29,7 @@
     overlay.style.position = 'fixed';
     overlay.style.backgroundColor = 'rgba(3, 252, 123, 0.3)';
     overlay.style.pointerEvents = 'none';
-    overlay.style.zIndex = '99999';
+    overlay.style.zIndex = '99998';
     document.body.appendChild(overlay);
   }
 
@@ -46,7 +46,7 @@
     toast.style.color = 'white';
     toast.style.padding = '15px 30px';
     toast.style.borderRadius = '5px';
-    toast.style.zIndex = '9999';
+    toast.style.zIndex = '99999';
     toast.style.opacity = '1';
     toast.style.transition = 'opacity 0.5s ease-out';
 
