@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Context Collector is a Chrome/Edge browser extension that allows users to select and collect content from web pages, converting it to clean Markdown format. The extension operates in two modes:
+Context Collector is a Chrome/Edge browser extension (v1.0.2) that allows users to select and collect content from web pages, converting it to clean Markdown format. The extension operates in two modes:
 
 - **Single Capture**: Click extension → "Single Capture" → select element → content copied to clipboard
 - **Collection Mode**: Click extension → "Start Collecting" → use Alt+Z hotkey on pages → select multiple elements → "Stop Collecting & Copy" → all content copied as Markdown
@@ -30,7 +30,7 @@ Context Collector is a Chrome/Edge browser extension that allows users to select
 **Script Injection**: Background service worker injects content scripts dynamically based on user actions and keyboard commands.
 
 **DOM Processing Pipeline**:
-1. Element selection with visual feedback (red outline on hover)
+1. Element selection with visual feedback (green overlay on hover)
 2. DOM-to-Markdown conversion with specialized handlers for tables, code blocks, lists
 3. Content sanitization and formatting
 4. Storage or clipboard operations
@@ -57,8 +57,10 @@ This is a vanilla JavaScript browser extension with no build system. Development
 
 **Restricted Pages**: Extension cannot run on `chrome://`, `edge://`, `brave://`, or `chrome-extension://` URLs due to browser security policies.
 
-**Content Selection**: Uses event delegation with `mouseover`/`mouseout` for element highlighting and `click` with capture phase for selection.
+**Content Selection**: Uses event delegation with `mousemove` for element highlighting via green overlay and `click` with capture phase for selection. Supports Escape key to cancel selection.
 
 **Keyboard Shortcuts**: Alt+Z hotkey (configurable) triggers content selection when collection mode is active.
 
 **Error Handling**: Graceful fallbacks for clipboard operations, storage access, and script injection failures.
+
+**Visual Feedback**: Uses a fixed-position green overlay (rgba(3, 252, 123, 0.3)) that follows mouse movement and adjusts to element boundaries. Overlay automatically repositions on scroll events.

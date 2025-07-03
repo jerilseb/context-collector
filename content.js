@@ -389,7 +389,7 @@
     window.addEventListener('scroll', handleScroll, true);
 
     isSelectionActive = true;
-    showToast('Select content to copy to clipboard', 1500);
+    // showToast('Select content to copy to clipboard', 1500);
   }
 
   // Initialize the extension selection mode when script is injected
