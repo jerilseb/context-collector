@@ -284,17 +284,12 @@
     event.stopPropagation();
     event.stopImmediatePropagation();
 
-    const element = event.target.closest('*');
-    if (!element) return;
+    if (!hoveredElement) return;
 
-    if (hoveredElement) {
-      hoveredElement.style.outline = '';
-    }
-
-    console.log("Element clicked, converting to markdown...", element);
+    console.log("Element clicked, converting to markdown...", hoveredElement);
     let markdown = '';
     try {
-      const content = convertNodeToMarkdown(element).trim();
+      const content = convertNodeToMarkdown(hoveredElement).trim();
       markdown = sanitizeFileContent(content);
     }
     catch (error) {
