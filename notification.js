@@ -26,5 +26,5 @@
         }, duration);
     }
 
-    showToast("Collection Started, use Hotkey to add content", 1500);
+    showToast("Collection Started, use Hotkey to add content", 2000);
 })();
