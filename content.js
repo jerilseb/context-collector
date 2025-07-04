@@ -21,6 +21,8 @@
     'nav',
   ];
 
+  // Remove toast if it's there
+  document.getElementById("context-collector-toast")?.remove();
 
   let overlay = document.getElementById('context-collector-overlay');
   if (overlay === null) {
@@ -35,6 +37,7 @@
 
   function showToast(message, duration = 1000) {
     const toast = document.createElement('div');
+    toast.id = "context-collector-toast";
     toast.textContent = message;
 
     toast.style.position = 'fixed';
@@ -312,7 +315,7 @@
         await chrome.storage.local.set({ isSingleCapture: false });
       } else {
         await appendToStorage(markdown);
-        showToast('Content added to collection', 1000);
+        showToast('Content added to collection', 1500);
       }
     } catch (error) {
       console.error("Error handling element click:", error);
@@ -335,7 +338,6 @@
   }
 
   function handleElementHover(event) {
-    console.log("mouse event fired");
     if (!isSelectionActive) return;
 
     // const element = event.target.closest('*');

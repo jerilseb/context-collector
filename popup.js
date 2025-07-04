@@ -7,6 +7,34 @@ const statusDiv = document.createElement('div');
 statusDiv.className = 'status-message';
 contentDiv.appendChild(statusDiv);
 
+function showToast(message, duration) {
+    const toast = document.createElement('div');
+    toast.id = "context-collector-toast";
+    toast.textContent = message;
+
+    toast.style.position = 'fixed';
+    toast.style.fontSize = '14px';
+    toast.style.bottom = '20px';
+    toast.style.left = '50%';
+    toast.style.transform = 'translateX(-50%)';
+    toast.style.backgroundColor = 'rgba(13, 119, 151)';
+    toast.style.color = 'white';
+    toast.style.padding = '15px 30px';
+    toast.style.borderRadius = '5px';
+    toast.style.zIndex = '99999';
+    toast.style.opacity = '1';
+    toast.style.transition = 'opacity 0.5s ease-out';
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => {
+            toast.remove();
+        }, 500);
+    }, duration);
+}
+
 function isRestrictedPage(tab) {
     if (!tab?.url) {
         return false;
@@ -42,11 +70,15 @@ async function startCollecting() {
         await chrome.storage.local.set({ isCollecting: true, collectedContent: '' });
         // updateUI(true);
 
+        const commands = await chrome.commands.getAll();
+        const command = commands.find(c => c.name === "collect-content");
+
         await chrome.scripting.executeScript({
+            func: showToast,
+            args: [`Collection Started, use ${command.shortcut} to add content`, 5000],
             target: { tabId: currentTab.id },
-            files: ['notification.js']
         });
-        
+
         window.close();
         // statusDiv.textContent = 'Collection started. Use the hotkey to add content';
 
@@ -68,13 +100,13 @@ async function singleCapture() {
 
         // Set a flag to indicate single capture mode
         await chrome.storage.local.set({ isSingleCapture: true });
-        
+
         // Inject the content script immediately
         await chrome.scripting.executeScript({
             target: { tabId: currentTab.id },
             files: ['content.js']
         });
-        
+
         // Close the popup
         window.close();
     } catch (error) {
