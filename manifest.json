@@ -32,8 +32,8 @@
   "commands": {
     "collect-content": {
       "suggested_key": {
-        "default": "Alt+Z",
-        "mac": "Alt+Z"
+        "default": "Alt+X",
+        "mac": "Alt+X"
       },
       "description": "Collect content from current page (when active)"
     }
