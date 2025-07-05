@@ -4,7 +4,7 @@
 
 This extension lets you collect specific content blocks from web pages and consolidate them into clean Markdown, ready for your clipboard. Choose between **single capture** mode for quick one-time selections or **collection** mode for gathering content from multiple pages.
 
-[output.webm](https://github.com/user-attachments/assets/4d8390cd-5e99-4f6e-a4c5-02fb2451fb8a)
+[demo.webm](https://github.com/user-attachments/assets/5e12a638-a485-4cf9-83e8-0eac9bfc1a7f)
 
 ## Limitations
 
