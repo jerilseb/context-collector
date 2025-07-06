@@ -214,10 +214,10 @@
         return `\n${children}\n\n`;
       case 'b':
       case 'strong':
-        return `**${children}**`;
+        return ` **${children}** `;
       case 'i':
       case 'em':
-        return `*${children}*`;
+        return ` *${children}* `;
       case 'a':
         if (node.nextSibling?.nodeType === Node.TEXT_NODE || node.previousSibling?.nodeType === Node.TEXT_NODE) {
           return ` ${children} `;
