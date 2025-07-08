@@ -190,6 +190,10 @@
     return `\`\`\`${language}\n${codeContent}\n\`\`\`\n\n`;
   }
 
+  function getHeadingText(node) {
+    return node.textContent.replace('¶', '').trim();
+  }
+
   function convertNodeToMarkdown(node) {
     if (node.nodeType === Node.TEXT_NODE) {
       return node.textContent.trim();
@@ -204,17 +208,17 @@
 
     switch (tagName) {
       case 'h1':
-        return `\n# ${node.textContent.trim()}\n\n`;
+        return `\n# ${getHeadingText(node)}\n\n`;
       case 'h2':
-        return `\n## ${node.textContent.trim()}\n\n`;
+        return `\n## ${getHeadingText(node)}\n\n`;
       case 'h3':
-        return `\n### ${node.textContent.trim()}\n\n`;
+        return `\n### ${getHeadingText(node)}\n\n`;
       case 'h4':
-        return `\n#### ${node.textContent.trim()}\n\n`;
+        return `\n#### ${getHeadingText(node)}\n\n`;
       case 'h5':
-        return `\n##### ${node.textContent.trim()}\n\n`;
+        return `\n##### ${getHeadingText(node)}\n\n`;
       case 'h6':
-        return `\n###### ${node.textContent.trim()}\n\n`;
+        return `\n###### ${getHeadingText(node)}\n\n`;
       case 'p':
         return `\n${children}\n\n`;
       case 'b':
