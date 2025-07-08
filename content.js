@@ -19,6 +19,7 @@
     'input',
     'label',
     'nav',
+    'form'
   ];
 
   // Remove toast if it's there
