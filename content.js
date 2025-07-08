@@ -3,7 +3,8 @@
   let isSelectionActive = true;
 
   const ignoredClasses = [
-    'advertisement'
+    'advertisement',
+    'breadcrumb'
   ];
 
   const ignoredAttributes = [
