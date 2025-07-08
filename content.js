@@ -117,7 +117,7 @@
       const cells = Array.from(rows[i].querySelectorAll('td'));
       // Ensure the number of cells matches the header for basic markdown tables
       if (cells.length === headerCells.length) {
-        markdown += `| ${cells.map(cell => (cell.textContent || '').trim().replace(/\|/g, '\\|')).join(' | ')} |\n`;
+        markdown += `| ${cells.map(cell => (cell.innerText || '').trim().replace(/\|/g, '\\|')).join(' | ')} |\n`;
       } else {
         // Handle rowspans/colspans crudely or skip row
         console.warn("Skipping table row with inconsistent cell count:", rows[i]);
