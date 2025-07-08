@@ -110,7 +110,7 @@
     if (rows.length === 0) return '';
 
     const headerCells = Array.from(rows[0].querySelectorAll('th, td')); // Allow td in header too
-    markdown += `| ${headerCells.map(cell => (cell.textContent || '').trim().replace(/\|/g, '\\|')).join(' | ')} |\n`;
+    markdown += `| ${headerCells.map(cell => (cell.innerText || '').trim().replace(/\|/g, '\\|')).join(' | ')} |\n`;
     markdown += `| ${headerCells.map(() => '---').join(' | ')} |\n`;
 
     for (let i = 1; i < rows.length; i++) {
