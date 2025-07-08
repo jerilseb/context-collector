@@ -237,7 +237,9 @@
 
         if (parentList && parentList.tagName.toLowerCase() === 'ol') {
           const listItems = Array.from(parentList.children).filter(child => child.tagName.toLowerCase() === 'li');
-          const index = listItems.indexOf(node) + 1;
+          const itemIndex = listItems.indexOf(node);
+          const startValue = parseInt(parentList.getAttribute('start') || '1', 10);
+          const index = startValue + itemIndex;
           return `${index}. ${liText}${suffix}`;
         } else {
           return `- ${liText}${suffix}`;
