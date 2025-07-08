@@ -8,7 +8,8 @@
   ];
 
   const ignoredAttributes = [
-    'role="navigation"'
+    'role="navigation"',
+    'id^="google_ads_iframe*'
   ];
 
   const ignoredTags = [
