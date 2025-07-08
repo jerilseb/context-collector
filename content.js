@@ -223,17 +223,25 @@
         if (node.nextSibling?.nodeType === Node.TEXT_NODE || node.previousSibling?.nodeType === Node.TEXT_NODE) {
           return ` ${children} `;
         }
-        return '';
+        return children;
       case 'img':
         return `\n`;
       case 'ul':
       case 'ol':
-        return `${children}`;
+        return `\n${children}`;
       case 'li':
-        if (children.trim()) {
-          return `- ${children.trim()}\n`;
+        const liText = children.trim();
+        const parentList = node.closest('ul, ol');
+        const hasNewline = liText.includes('\n');
+        const suffix = hasNewline ? '\n\n' : '\n';
+
+        if (parentList && parentList.tagName.toLowerCase() === 'ol') {
+          const listItems = Array.from(parentList.children).filter(child => child.tagName.toLowerCase() === 'li');
+          const index = listItems.indexOf(node) + 1;
+          return `${index}. ${liText}${suffix}`;
+        } else {
+          return `- ${liText}${suffix}`;
         }
-        return '';
       case 'blockquote':
         return `> ${node.textContent}\n\n`;
       case 'code':
