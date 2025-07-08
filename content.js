@@ -21,7 +21,9 @@
     'input',
     'label',
     'nav',
-    'form'
+    'form',
+    'audio',
+    'video'
   ];
 
   // Remove toast if it's there
