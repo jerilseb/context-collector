@@ -257,11 +257,10 @@
         return `${spaceBefore}*${content}*${spaceAfter}`;
       }
       case 'a': {
-        const content = children.trim();
-        if (!content) return '';
+        if (!children) return '';
 
         const { spaceBefore, spaceAfter } = getSpaceBeforeAfter(node);
-        return `${spaceBefore}${content}${spaceAfter}`;
+        return `${spaceBefore}${children}${spaceAfter}`;
       }
       case 'img':
         return `\n`;
