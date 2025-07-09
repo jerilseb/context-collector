@@ -29,9 +29,10 @@ zip -r "$OUTPUT_FILE" . \
     -x "build.sh" \
     -x "*.git*" \
     -x "*.DS_Store" \
+    -x "*.repomix*" \
     -x "node_modules/*" \
     -x "*.log" \
-    -x "CLAUDE.md" \
+    -x "*.md" \
     -x "LICENSE" 
 
 echo "Extension packaged successfully: $OUTPUT_FILE"
