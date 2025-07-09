@@ -295,6 +295,7 @@
     return content
       .replace(/^[ \t]+$/gm, '\n')      // Convert lines that contain only whitespace to a single newline
       .replace(/^#{1,6}\s*$/gm, '')     // Remove blank headings (# ## ### etc. with only whitespace)
+      .replace(/^[ \t]*-[ \t]*$/gm, '') // Remove lines that contain only a dash with spaces around it
       .replace(/\n{3,}/g, '\n\n')       // Replace 3 or more newlines with just 2
       .trim();                          // Remove leading/trailing spaces
   }
