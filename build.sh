@@ -24,16 +24,13 @@ if [ -f "$OUTPUT_FILE" ]; then
     echo "Removed existing $OUTPUT_FILE"
 fi
 
-# Create zip file excluding build script, git files, and other development files
-zip -r "$OUTPUT_FILE" . \
-    -x "build.sh" \
-    -x "*.git*" \
-    -x "*.DS_Store" \
-    -x "*.repomix*" \
-    -x "node_modules/*" \
-    -x "*.log" \
-    -x "*.md" \
-    -x "LICENSE" 
+# Create zip file including only extension files
+zip "$OUTPUT_FILE" \
+    *.js \
+    *.css \
+    *.html \
+    icons/*.png \
+    manifest.json 
 
 echo "Extension packaged successfully: $OUTPUT_FILE"
 echo "File size: $(du -h "$OUTPUT_FILE" | cut -f1)"
