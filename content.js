@@ -228,10 +228,15 @@
       case 'em':
         return ` *${children}* `;
       case 'a':
-        if (node.nextSibling?.nodeType === Node.TEXT_NODE || node.previousSibling?.nodeType === Node.TEXT_NODE) {
-          return ` ${children} `;
+        let aPrefix = '';
+        let aSuffix = '';
+        if (node.nextSibling?.nodeType === Node.TEXT_NODE) {
+          aSuffix = ' ';
         }
-        return children;
+        if (node.previousSibling?.nodeType === Node.TEXT_NODE) {
+          aPrefix = ' ';
+        }
+        return `${aPrefix}${children}${aSuffix}`;
       case 'img':
         return `\n`;
       case 'ul':
@@ -241,16 +246,16 @@
         const liText = children.trim();
         const parentList = node.closest('ul, ol');
         const hasNewline = liText.includes('\n');
-        const suffix = hasNewline ? '\n\n' : '\n';
+        const liSuffix = hasNewline ? '\n\n' : '\n';
 
         if (parentList && parentList.tagName.toLowerCase() === 'ol') {
           const listItems = Array.from(parentList.children).filter(child => child.tagName.toLowerCase() === 'li');
           const itemIndex = listItems.indexOf(node);
           const startValue = parseInt(parentList.getAttribute('start') || '1', 10);
           const index = startValue + itemIndex;
-          return `${index}. ${liText}${suffix}`;
+          return `${index}. ${liText}${liSuffix}`;
         } else {
-          return `- ${liText}${suffix}`;
+          return `- ${liText}${liSuffix}`;
         }
       case 'blockquote':
         return `> ${node.textContent}\n\n`;
