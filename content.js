@@ -228,10 +228,10 @@
       case 'em':
         return ` *${children}* `;
       case 'a':
-        // if (node.nextSibling?.nodeType === Node.TEXT_NODE || node.previousSibling?.nodeType === Node.TEXT_NODE) {
-        //   return ` ${children} `;
-        // }
-        return ` ${children} `;
+        if (node.nextSibling?.nodeType === Node.TEXT_NODE || node.previousSibling?.nodeType === Node.TEXT_NODE) {
+          return ` ${children} `;
+        }
+        return children;
       case 'img':
         return `\n`;
       case 'ul':
