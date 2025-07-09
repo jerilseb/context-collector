@@ -197,14 +197,13 @@
   function getSpaceBeforeAfter(node) {
     const { previousSibling, nextSibling } = node;
 
+    // TEXT_NODE nodes are trimmed, they always need space
     const leading =
       !previousSibling || // Beginning of parent
-      (previousSibling.nodeType === Node.TEXT_NODE && previousSibling.nodeValue.endsWith(' ')) ||
       (previousSibling.nodeType === Node.ELEMENT_NODE && previousSibling.textContent.endsWith(' '));
 
     const trailing =
       !nextSibling || // End of parent
-      (nextSibling.nodeType === Node.TEXT_NODE && nextSibling.nodeValue.startsWith(' ')) ||
       (nextSibling.nodeType === Node.ELEMENT_NODE && nextSibling.textContent.startsWith(' '));
 
     const spaceBefore = leading ? '' : ' ';
