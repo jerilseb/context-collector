@@ -194,6 +194,25 @@
     return node.textContent.replace('¶', '').trim();
   }
 
+  function getSpaceBeforeAfter(node) {
+    const { previousSibling, nextSibling } = node;
+
+    const leading =
+      !previousSibling || // Beginning of parent
+      (previousSibling.nodeType === Node.TEXT_NODE && previousSibling.nodeValue.endsWith(' ')) ||
+      (previousSibling.nodeType === Node.ELEMENT_NODE && previousSibling.textContent.endsWith(' '));
+
+    const trailing =
+      !nextSibling || // End of parent
+      (nextSibling.nodeType === Node.TEXT_NODE && nextSibling.nodeValue.startsWith(' ')) ||
+      (nextSibling.nodeType === Node.ELEMENT_NODE && nextSibling.textContent.startsWith(' '));
+
+    const spaceBefore = leading ? '' : ' ';
+    const spaceAfter = trailing ? '' : ' ';
+
+    return { spaceBefore, spaceAfter };
+  }
+
   function convertNodeToMarkdown(node) {
     if (node.nodeType === Node.TEXT_NODE) {
       return node.textContent.trim();
@@ -222,51 +241,60 @@
       case 'p':
         return `\n${children}\n\n`;
       case 'b':
-      case 'strong':
-        return ` **${children}** `;
+      case 'strong': {
+        const content = children.trim();
+        if (!content) return ''; // Don't output empty tags like ****
+
+        const { spaceBefore, spaceAfter } = getSpaceBeforeAfter(node);
+        return `${spaceBefore}**${content}**${spaceAfter}`;
+      }
       case 'i':
-      case 'em':
-        return ` *${children}* `;
-      case 'a':
-        let aPrefix = '';
-        let aSuffix = '';
-        if (node.nextSibling?.nodeType === Node.TEXT_NODE) {
-          aSuffix = ' ';
-        }
-        if (node.previousSibling?.nodeType === Node.TEXT_NODE) {
-          aPrefix = ' ';
-        }
-        return `${aPrefix}${children}${aSuffix}`;
+      case 'em': {
+        const content = children.trim();
+        if (!content) return '';
+
+        const { spaceBefore, spaceAfter } = getSpaceBeforeAfter(node);
+        return `${spaceBefore}*${content}*${spaceAfter}`;
+      }
+      case 'a': {
+        const content = children.trim();
+        if (!content) return '';
+
+        const { spaceBefore, spaceAfter } = getSpaceBeforeAfter(node);
+        return `${spaceBefore}${content}${spaceAfter}`;
+      }
       case 'img':
         return `\n`;
       case 'ul':
       case 'ol':
         return `\n${children}`;
-      case 'li':
-        const liText = children.trim();
+      case 'li': {
+        const content = children.trim();
         const parentList = node.closest('ul, ol');
-        const hasNewline = liText.includes('\n');
-        const liSuffix = hasNewline ? '\n\n' : '\n';
+        const hasNewline = content.includes('\n');
+        const suffix = hasNewline ? '\n\n' : '\n';
 
         if (parentList && parentList.tagName.toLowerCase() === 'ol') {
           const listItems = Array.from(parentList.children).filter(child => child.tagName.toLowerCase() === 'li');
           const itemIndex = listItems.indexOf(node);
           const startValue = parseInt(parentList.getAttribute('start') || '1', 10);
           const index = startValue + itemIndex;
-          return `${index}. ${liText}${liSuffix}`;
+          return `${index}. ${content}${suffix}`;
         } else {
-          return `- ${liText}${liSuffix}`;
+          return `- ${content}${suffix}`;
         }
+      }
       case 'blockquote':
         return `> ${node.textContent}\n\n`;
-      case 'code':
+      case 'code': {
         // If it's inside a PRE, it's a code block
         if (node.closest('pre')) {
           return convertCodeBlockToMarkdown(node);
         }
         // inline code
         return ` \`${children}\` `;
-      case 'pre':
+      }
+      case 'pre': {
         // Most pre have a code inside them, defer to the code node
         if (node.querySelector('code') !== null) {
           return children;
@@ -277,13 +305,14 @@
           return convertCodeBlockToMarkdown(node);
         }
         return `\n---\n${getFormattedText(node)}\n---\n`;
+      }
       case 'hr':
         return `\n---\n\n`;
       case 'br':
         return '  \n'; // Markdown line break
       case 'table':
         return convertTableToMarkdown(node);
-      case 'div':
+      case 'div': {
         if (node.getAttribute('role') === 'code') {
           return convertCodeBlockToMarkdown(node);
         }
@@ -291,6 +320,7 @@
           return children;
         }
         return `${children}\n`;
+      }
       default:
         return children;
     }
