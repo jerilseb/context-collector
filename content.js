@@ -259,7 +259,10 @@
         if (!children) return '';
 
         const { spaceBefore, spaceAfter } = getSpaceBeforeAfter(node);
-        return `${spaceBefore}${children}${spaceAfter}`;
+        const prefix = children.startsWith(' ') ? '' : spaceBefore;
+        const suffix = children.endsWith(' ') ? '' : spaceAfter;
+
+        return `${prefix}${children}${suffix}`;
       }
       case 'img':
         return `\n`;
