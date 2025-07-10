@@ -194,20 +194,14 @@
     return node.textContent.replace('¶', '').trim();
   }
 
-  function getSpaceBeforeAfter(node) {
+  function getSpaceBeforeAfter(node, children) {
     const { previousSibling, nextSibling } = node;
 
-    // TEXT_NODE nodes are trimmed, they always need space
-    const leading =
-      !previousSibling || // Beginning of parent
-      (previousSibling.nodeType === Node.ELEMENT_NODE && previousSibling.textContent.endsWith(' '));
-
-    const trailing =
-      !nextSibling || // End of parent
-      (nextSibling.nodeType === Node.ELEMENT_NODE && nextSibling.textContent.startsWith(' '));
-
-    const spaceBefore = leading ? '' : ' ';
-    const spaceAfter = trailing ? '' : ' ';
+    let spaceBefore = previousSibling ? ' ' : '';
+    let spaceAfter = nextSibling ? ' ' : '';
+    
+    spaceBefore = children.startsWith(' ') ? '' : spaceBefore;
+    spaceAfter = children.endsWith(' ') ? '' : spaceAfter;
 
     return { spaceBefore, spaceAfter };
   }
@@ -241,28 +235,23 @@
         return `\n${children}\n\n`;
       case 'b':
       case 'strong': {
-        const content = children.trim();
-        if (!content) return ''; // Don't output empty tags like ****
+        if (!children) return ''; // Don't output empty tags like ****
 
-        const { spaceBefore, spaceAfter } = getSpaceBeforeAfter(node);
-        return `${spaceBefore}**${content}**${spaceAfter}`;
+        const { spaceBefore, spaceAfter } = getSpaceBeforeAfter(node, children);
+        return `${spaceBefore}**${children}**${spaceAfter}`;
       }
       case 'i':
       case 'em': {
-        const content = children.trim();
-        if (!content) return '';
+        if (!children) return '';
 
-        const { spaceBefore, spaceAfter } = getSpaceBeforeAfter(node);
-        return `${spaceBefore}*${content}*${spaceAfter}`;
+        const { spaceBefore, spaceAfter } = getSpaceBeforeAfter(node, children);
+        return `${spaceBefore}*${children}*${spaceAfter}`;
       }
       case 'a': {
         if (!children) return '';
 
-        const { spaceBefore, spaceAfter } = getSpaceBeforeAfter(node);
-        const prefix = children.startsWith(' ') ? '' : spaceBefore;
-        const suffix = children.endsWith(' ') ? '' : spaceAfter;
-
-        return `${prefix}${children}${suffix}`;
+        const { spaceBefore, spaceAfter } = getSpaceBeforeAfter(node, children);
+        return `${spaceBefore}${children}${spaceAfter}`;
       }
       case 'img':
         return `\n`;
@@ -292,8 +281,10 @@
         if (node.closest('pre')) {
           return convertCodeBlockToMarkdown(node);
         }
+
         // inline code
-        return ` \`${children}\` `;
+        const { spaceBefore, spaceAfter } = getSpaceBeforeAfter(node, children);
+        return `${spaceBefore}\`${children}\`${spaceAfter}`;
       }
       case 'pre': {
         // Most pre have a code inside them, defer to the code node
